@@ -31,7 +31,25 @@
   --text-muted: #64748b;
 }
 
+/* Sidebar Logo Styling */
+.sidebar-logo-container {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
 
+.sidebar-logo {
+  max-width: 180px;
+  height: auto;
+  filter: brightness(0) invert(1); /* Makes logo white */
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.sidebar-logo:hover {
+  transform: scale(1.05);
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(96, 165, 250, 0.5));
+}
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -1291,13 +1309,18 @@ tr:hover td {
 
 
 
-  <!-- SIDEBAR -->
+<!-- SIDEBAR -->
 <div id="functionSidebar" class="sidebar hidden">
+  <!-- Logo Section -->
+  <div class="sidebar-logo-container" style="text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid rgba(255, 255, 255, 0.2);">
+    <img src="TWISE.png" alt="TWISE Logo" class="sidebar-logo" style="max-width: 180px; height: auto; filter: brightness(0) invert(1);">
+  </div>
+  
   <h5 class="sidebar-title">Functions</h5>
   <button id="btnShowUpdate" class="btn btn-primary sidebar-btn w-100 mb-3">UPDATE ORDER DETAILS</button>
   <button id="btnCustomizeTable" class="btn btn-primary sidebar-btn w-100 mb-3">Customize Table</button>
   <button id="btnCustomizeCharts" class="btn btn-secondary sidebar-btn w-100 mb-3">Customize Charts</button>
-    </div>
+</div>
   
 
 
@@ -5310,5 +5333,6 @@ document.addEventListener("DOMContentLoaded", () => {
 </body>
 
 </html>
+
 
 
