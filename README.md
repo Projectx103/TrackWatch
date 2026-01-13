@@ -13,7 +13,7 @@
 - **Automated Email Notifications** – Receive reminders before tentative delivery dates for pending orders.  
 - **Customizable Dashboard** – Visualize order statuses, delivery performance, and delays.  
 - **Multiple Reports** – Delivery performance reports, pending follow-up reports, and more.  
-- **Responsive & Modern UI** – Clean, Gmail-style layout with intuitive navigation.  
+- **Responsive & Modern UI** – Clean, style layout with intuitive navigation and Charts.  
 - **Cloud-based & Scalable** – Built on Firebase for secure, reliable, and fast data access.  
 
 ---
