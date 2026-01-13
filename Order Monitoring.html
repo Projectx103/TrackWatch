@@ -7,35 +7,35 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
- <style>
+<style>
 
 :root {
-  /* Green + Charcoal Professional Palette */
-  --primary: #059669;
-  --secondary: #047857;
-  --accent: #10b981;
-  --dark: #1F2937;
-  --light: #F3F4F6;
-  --success: #22C55E;
-  --warning: #EAB308;
-  --danger: #EF4444;
-  --delayed: #F97316;
-  --info: #059669;
+  /* Deep Blue + Gold Professional Palette */
+  --primary: #1e40af;
+  --secondary: #1e3a8a;
+  --accent: #3b82f6;
+  --dark: #0f172a;
+  --light: #f8fafc;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --delayed: #f97316;
+  --info: #0ea5e9;
   
-  --sidebar-bg: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --sidebar-bg: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   --card-bg: #FFFFFF;
-  --card-shadow: 0 10px 40px rgba(5, 150, 105, 0.15);
-  --hover-shadow: 0 15px 50px rgba(4, 120, 87, 0.25);
+  --card-shadow: 0 10px 40px rgba(30, 64, 175, 0.15);
+  --hover-shadow: 0 15px 50px rgba(30, 58, 138, 0.25);
   --transition-fast: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --text-main: #1F2937;
-  --text-muted: #6b7280;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
 }
 
 
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f5f5f5;
+  background: #f1f5f9;
   background-attachment: fixed;
   color: var(--text-main);
   margin: 0;
@@ -50,7 +50,7 @@ body {
   left: 0;
   width: 260px;
   height: calc(100vh - 56px);
-  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
   backdrop-filter: blur(30px);
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   padding: 2rem 1.5rem;
@@ -70,7 +70,7 @@ body {
 .sidebar-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #22C55E; /* green highlight */
+  color: #60a5fa; /* blue highlight */
   margin-bottom: 1.5rem;
   letter-spacing: 0.5px;
   padding-left: 2px;
@@ -104,7 +104,7 @@ body {
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
+  box-shadow: 0 4px 10px rgba(30, 64, 175, 0.25);
   transition: all 0.2s ease-in-out;
   display: flex;
   align-items: center;
@@ -117,18 +117,18 @@ body {
 }
 
 .sidebar-btn:hover {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.4);
 }
 
 .sidebar-btn:active {
   transform: scale(0.98);
-  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 3px 8px rgba(30, 64, 175, 0.3);
 }
 
 .sidebar-btn.active {
-  background: linear-gradient(135deg, #22C55E, #10b981);
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
   box-shadow: inset 0 0 0 2px #ffffff33;
 }
 
@@ -156,7 +156,7 @@ body {
   backdrop-filter: blur(20px);
   padding: 1.5rem 2rem;
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(5, 150, 105, 0.2);
+  box-shadow: 0 8px 32px rgba(30, 64, 175, 0.2);
   border-left: 5px solid var(--primary);
   color: var(--text-main);
   transition: all var(--transition-fast);
@@ -164,8 +164,8 @@ body {
 
 .card-summary:hover {
   transform: translateY(-8px) scale(1.03);
-  box-shadow: 0 15px 50px rgba(4, 120, 87, 0.3);
-  border-left-color: #22C55E;
+  box-shadow: 0 15px 50px rgba(30, 58, 138, 0.3);
+  border-left-color: #60a5fa;
 }
 
 /* === Upload Zone === */
@@ -190,26 +190,26 @@ body {
 .table-wrapper {
   max-height: 500px;
   overflow: auto;
-  background: #003f5c; /* deep teal/navy */
+  background: #0f172a; /* deep navy/slate */
   border-radius: 16px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
   margin-top: 2rem;
-  border: 1px solid #58508d;
+  border: 1px solid #1e3a8a;
   padding: 0;
 }
 
 /* === Apple-Style Card for Table === */
 .apple-card {
-  background: #003f5c;
+  background: #0f172a;
   border-radius: 16px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  border: 1px solid #58508d;
+  border: 1px solid #1e3a8a;
   transition: all 0.3s ease;
 }
 
 .apple-card-header {
-  background: linear-gradient(to right, #059669, #047857);
+  background: linear-gradient(to right, #1e40af, #1e3a8a);
   color: #ffffff;
   padding: 1rem 1.5rem;
   font-size: 1.1rem;
@@ -241,18 +241,18 @@ body {
   font-size: 0.95rem;
   font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #fdfdfd;
-  background: #1F2937;
+  background: #1e293b;
 }
 
 /* Table Head */
 .apple-table thead th {
   position: sticky;
   top: 0;
-  background: #047857;
+  background: #1e3a8a;
   font-weight: 600;
   color: #ffffff;
   padding: 0.85rem 1.2rem;
-  border-bottom: 1px solid #22C55E;
+  border-bottom: 1px solid #60a5fa;
   backdrop-filter: blur(8px);
   z-index: 10;
   white-space: nowrap;
@@ -264,7 +264,7 @@ body {
 .apple-table td:first-child {
   position: sticky;
   left: 0;
-  background: #58508d;
+  background: #334155;
   z-index: 3;
 }
 
@@ -278,19 +278,19 @@ body {
 }
 
 .apple-table tbody tr:hover {
-  background-color: #059669;
+  background-color: #1e40af;
   cursor: pointer;
 }
 
 /* Alternating row colors */
 .apple-table tbody tr:nth-child(even) {
-  background-color: #374151;
+  background-color: #334155;
 }
 
 /* Table Cells */
 .apple-table td {
   padding: 0.75rem 1.2rem;
-  border-bottom: 1px solid #047857;
+  border-bottom: 1px solid #1e3a8a;
   color: #ffffff;
   vertical-align: middle;
   transition: background 0.3s ease;
@@ -303,18 +303,18 @@ body {
 }
 
 .apple-table-wrapper::-webkit-scrollbar-thumb {
-  background: #059669;
+  background: #1e40af;
   border-radius: 10px;
 }
 
 .apple-table-wrapper::-webkit-scrollbar-track {
-  background: #1F2937;
+  background: #1e293b;
 }
 
 
 /* === Status Badges === */
 .status-delivered {
-  background-color: #22C55E;
+  background-color: #10b981;
   color: #fff;
   font-weight: 600;
   padding: 2px 10px;
@@ -323,8 +323,8 @@ body {
 }
 
 .status-partial {
-  background-color: #EAB308;
-  color: #1F2937;
+  background-color: #f59e0b;
+  color: #0f172a;
   font-weight: 600;
   padding: 2px 10px;
   border-radius: 20px;
@@ -332,7 +332,7 @@ body {
 }
 
 .status-pending {
-  background-color: #F97316;
+  background-color: #f97316;
   color: #fff;
   font-weight: 600;
   padding: 2px 10px;
@@ -341,7 +341,7 @@ body {
 }
 
 .status-cancelled {
-  background-color: #EF4444;
+  background-color: #ef4444;
   color: #fff;
   font-weight: 600;
   padding: 2px 10px;
@@ -389,11 +389,11 @@ td.remarks-cell {
 
 /* Selected Row Highlight */
 tr.selected-row td {
-  background-color: #1abc9c !important;
+  background-color: #3b82f6 !important;
 }
 
 tr:hover td {
-  background-color: #3b536a !important;
+  background-color: #475569 !important;
 }
 
 
@@ -455,17 +455,17 @@ tr:hover td {
 
 .status-delivered {
   color: #fff;
-  background-color: #34c759;
+  background-color: #10b981;
 }
 
 .status-cancelled {
   color: #fff;
-  background-color: #ff3b30;
+  background-color: #ef4444;
 }
 
 .status-partial {
   color: #fff;
-  background-color: #ff9500;
+  background-color: #f59e0b;
 }
 
 
@@ -597,7 +597,7 @@ tr:hover td {
 }
 
 .apple-style-report-table tbody tr:hover td {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   color: #ffffff;
   cursor: pointer;
   font-weight: 500;
@@ -654,22 +654,22 @@ tr:hover td {
   overflow-y: auto; /* Enable scrolling within the modal */
 }
 .custom-modal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   color: #ffffff;
 }
 
 .custom-modal .table thead {
-  background: linear-gradient(to right, #059669, #047857);
+  background: linear-gradient(to right, #1e40af, #1e3a8a);
   color: #ffffff;
 }
 
 .custom-modal .table thead th {
   color: #ffffff !important;
-  border-bottom: 2px solid #22C55E;
+  border-bottom: 2px solid #60a5fa;
 }
 
 .custom-modal .table-hover tbody tr:hover {
-  background-color: rgba(5, 150, 105, 0.1);
+  background-color: rgba(30, 64, 175, 0.1);
 }
 
 
@@ -727,86 +727,86 @@ tr:hover td {
 
 /* Report Output Modal Specific */
 #reportOutputModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  border-bottom: 3px solid #22C55E;
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  border-bottom: 3px solid #60a5fa;
 }
 
 #reportOutputModal .btn-outline-success {
-  border-color: #059669;
-  color: #059669;
+  border-color: #1e40af;
+  color: #1e40af;
   font-weight: 600;
 }
 
 #reportOutputModal .btn-outline-success:hover {
-  background: #059669;
+  background: #1e40af;
   color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
 
 
 /* RR Report Modal */
 #rrReportModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #rrReportModal .table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(5, 150, 105, 0.05);
+  background-color: rgba(30, 64, 175, 0.05);
 }
 
 #rrReportModal .bg-secondary {
-  background: linear-gradient(135deg, #1F2937, #047857) !important;
+  background: linear-gradient(135deg, #0f172a, #1e3a8a) !important;
 }
 
 #rrReportModal .btn-success {
-  background: #22C55E;
+  background: #10b981;
 }
 
 #rrReportModal .btn-success:hover {
-  background: #16a34a;
+  background: #059669;
 }
 
 #rrReportModal .btn-secondary {
-  background: #047857;
+  background: #1e3a8a;
 }
 
 #rrReportModal .btn-secondary:hover {
-  background: #059669;
+  background: #1e40af;
 }
 
 /* Supplier Selection Modal */
 #reportModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #reportModal .form-select {
-  border: 2px solid #d1d5db;
+  border: 2px solid #cbd5e1;
   border-radius: 8px;
 }
 
 #reportModal .form-select:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 #reportModal .btn-primary {
-  background: #059669;
+  background: #1e40af;
   width: 100%;
   font-weight: 600;
 }
 
 #reportModal .btn-primary:hover {
-  background: #047857;
+  background: #1e3a8a;
 }
 
 /* RR Upload Modal */
 #rrUploadModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #rrUploadModal .form-control:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 
@@ -818,140 +818,140 @@ tr:hover td {
 
 /* Delivery Performance Modal */
 #deliveryPerformanceModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #deliveryPerformanceModal .text-primary {
-  color: #059669 !important;
+  color: #1e40af !important;
 }
 
 #deliveryPerformanceModal .bg-light {
-  background-color: #F3F4F6 !important;
+  background-color: #f8fafc !important;
 }
 
 #deliveryPerformanceModal .badge.bg-warning {
-  background-color: #EAB308 !important;
-  color: #1F2937;
+  background-color: #f59e0b !important;
+  color: #0f172a;
 }
 
 #deliveryPerformanceModal .badge.bg-secondary {
-  background-color: #6b7280 !important;
+  background-color: #64748b !important;
 }
 
 #deliveryPerformanceModal .badge.bg-dark {
-  background-color: #1F2937 !important;
+  background-color: #0f172a !important;
 }
 
 #deliveryPerformanceModal .badge.bg-danger {
-  background-color: #EF4444 !important;
+  background-color: #ef4444 !important;
 }
 
 #deliveryPerformanceModal .badge.bg-info {
-  background-color: #059669 !important;
+  background-color: #0ea5e9 !important;
 }
 
 #deliveryPerformanceModal .progress-bar.bg-success {
-  background-color: #22C55E !important;
+  background-color: #10b981 !important;
 }
 
 /* Customize Table Modal */
 #customizeTableModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #customizeTableModal .form-check-input:checked {
-  background-color: #059669;
-  border-color: #059669;
+  background-color: #1e40af;
+  border-color: #1e40af;
 }
 
 #customizeTableModal .btn-success {
-  background: #22C55E;
+  background: #10b981;
   border: none;
 }
 
 #customizeTableModal .btn-success:hover {
-  background: #16a34a;
+  background: #059669;
 }
 
 /* Customize Chart Modal */
 #customizeChartModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #customizeChartModal .form-select:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 /* Assign Currency Modal */
 #assignCurrencyModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #assignCurrencyModal .form-select {
-  border: 2px solid #d1d5db;
+  border: 2px solid #cbd5e1;
   border-radius: 8px;
 }
 
 #assignCurrencyModal .form-select:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 /* Row Detail Modal */
 #rowDetailModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #rowDetailModal .form-control:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 #rowDetailModal .btn-primary {
-  background: #059669;
+  background: #1e40af;
 }
 
 #rowDetailModal .btn-primary:hover {
-  background: #047857;
+  background: #1e3a8a;
 }
 
 /* Date Range Modal */
 #dateRangeModal .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 }
 
 #dateRangeModal .form-control:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 /* Excel Upload Loader Modal */
 #excelUploadLoaderModal .modal-content {
   background: #ffffff;
-  border: 2px solid #059669;
+  border: 2px solid #1e40af;
 }
 
 #excelUploadLoaderModal h5 {
-  color: #1F2937;
+  color: #0f172a;
   font-weight: 600;
 }
 
 #excelUploadLoaderModal .progress {
-  background-color: #e5e7eb;
+  background-color: #e2e8f0;
   border-radius: 10px;
 }
 
 #excelUploadLoaderModal .progress-bar {
-  background: linear-gradient(90deg, #059669 0%, #22C55E 100%);
+  background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
 }
 
 
-/* === Green + Charcoal Modal Styling === */
+/* === Blue + Navy Modal Styling === */
 .modal-header {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
   color: #ffffff;
-  border-bottom: 2px solid #22C55E;
+  border-bottom: 2px solid #60a5fa;
 }
 
 .modal-header .modal-title {
@@ -964,20 +964,20 @@ tr:hover td {
 }
 
 .modal-content {
-  border: 2px solid #059669;
+  border: 2px solid #1e40af;
   border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(5, 150, 105, 0.2);
+  box-shadow: 0 10px 40px rgba(30, 64, 175, 0.2);
 }
 
 .modal-footer {
-  background: #F3F4F6;
-  border-top: 1px solid #d1d5db;
+  background: #f8fafc;
+  border-top: 1px solid #cbd5e1;
 }
 
 /* Modal Buttons */
 .modal-footer .btn-primary,
 .modal-body .btn-primary {
-  background: linear-gradient(135deg, #059669, #047857);
+  background: linear-gradient(135deg, #1e40af, #1e3a8a);
   border: none;
   color: #ffffff;
   font-weight: 600;
@@ -986,33 +986,33 @@ tr:hover td {
 
 .modal-footer .btn-primary:hover,
 .modal-body .btn-primary:hover {
-  background: linear-gradient(135deg, #047857, #059669);
+  background: linear-gradient(135deg, #1e3a8a, #1e40af);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 6px 16px rgba(30, 64, 175, 0.3);
 }
 
 .modal-footer .btn-secondary {
-  background: #6b7280;
+  background: #64748b;
   border: none;
   color: #ffffff;
 }
 
 .modal-footer .btn-secondary:hover {
-  background: #4b5563;
+  background: #475569;
 }
 
 .modal-footer .btn-success {
-  background: #22C55E;
+  background: #10b981;
   border: none;
   color: #ffffff;
 }
 
 .modal-footer .btn-success:hover {
-  background: #16a34a;
+  background: #059669;
 }
 
 .modal-footer .btn-danger {
-  background: #EF4444;
+  background: #ef4444;
   border: none;
   color: #ffffff;
 }
@@ -1021,66 +1021,30 @@ tr:hover td {
   background: #dc2626;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Chart Cards Enhancement */
 .chart-trio .card {
   background: #ffffff;
-  border: 1px solid #e5e7eb !important;
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.08) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.08) !important;
   transition: all 0.3s ease;
 }
 
 .chart-trio .card:hover {
-  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.15) !important;
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.15) !important;
   transform: translateY(-4px);
 }
 
 .chart-trio .card-body h5 {
-  color: #1F2937 !important;
+  color: #0f172a !important;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* === Apple Footer === */
 .apple-footer {
-  background: linear-gradient(to top, #1F2937, #047857);
+  background: linear-gradient(to top, #0f172a, #1e3a8a);
   padding: 40px 20px 20px;
   font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #ffffff;
-  border-top: 2px solid #059669;
+  border-top: 2px solid #1e40af;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25);
   transition: margin-left 0.3s ease;
   margin-left: 0;
@@ -1100,12 +1064,12 @@ tr:hover td {
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
-  color: #22C55E;
+  color: #60a5fa;
 }
 
 .footer-subtext {
   font-size: 0.95rem;
-  color: #d1fae5;
+  color: #dbeafe;
   margin: 4px 0 0;
 }
 
@@ -1116,18 +1080,18 @@ tr:hover td {
 .footer-links a {
   margin: 0 12px;
   font-size: 0.95rem;
-  color: #10b981;
+  color: #3b82f6;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-  color: #22C55E;
+  color: #60a5fa;
 }
 
 .footer-copy {
   font-size: 0.85rem;
-  color: #d1cbe6; /* light violet-grey */
+  color: #cbd5e1;
 }
 
 /* Sidebar shift compatibility */
@@ -1186,13 +1150,12 @@ tr:hover td {
 }
 
 /* UPDATE ORDER MODAL - FIX TABLE STYLING */
-/* UPDATE ORDER MODAL - FIX TABLE STYLING */
 #updateOrderModal .table {
   margin-bottom: 0;
 }
 
 #updateOrderModal .table thead {
-  background: linear-gradient(to right, #047857, #059669);
+  background: linear-gradient(to right, #1e3a8a, #1e40af);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -1202,73 +1165,73 @@ tr:hover td {
   color: #ffffff !important;
   font-weight: 600;
   padding: 0.85rem 1.2rem;
-  border-bottom: 2px solid #22C55E;
+  border-bottom: 2px solid #60a5fa;
   text-align: center;
   vertical-align: middle;
-  background: linear-gradient(to right, #047857, #059669);
+  background: linear-gradient(to right, #1e3a8a, #1e40af);
 }
 
 #updateOrderModal .table-bordered {
-  border: 2px solid #d1d5db;
+  border: 2px solid #cbd5e1;
 }
 
 #updateOrderModal .table-bordered td,
 #updateOrderModal .table-bordered th {
-  border: 1px solid #d1d5db;
+  border: 1px solid #cbd5e1;
 }
 
 #updateOrderModal .table-hover tbody tr:hover {
-  background-color: rgba(5, 150, 105, 0.1);
+  background-color: rgba(30, 64, 175, 0.1);
   cursor: pointer;
 }
 
 #updateOrderModal .form-control {
-  border: 1px solid #d1d5db;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
   padding: 0.5rem;
 }
 
 #updateOrderModal .form-control:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 #updateOrderModal .form-select {
-  border: 1px solid #d1d5db;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
 }
 
 #updateOrderModal .form-select:focus {
-  border-color: #059669;
-  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.25);
 }
 
 /* Modal Footer Buttons */
 #updateOrderModal .modal-footer {
-  border-top: 1px solid #e5e7eb;
-  background: #F3F4F6;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
 }
 
 #updateOrderModal .btn-primary {
-  background: linear-gradient(135deg, #059669, #047857);
+  background: linear-gradient(135deg, #1e40af, #1e3a8a);
   border: none;
   color: #ffffff;
   font-weight: 600;
 }
 
 #updateOrderModal .btn-primary:hover {
-  background: linear-gradient(135deg, #047857, #059669);
+  background: linear-gradient(135deg, #1e3a8a, #1e40af);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 6px 16px rgba(30, 64, 175, 0.3);
 }
 
 #updateOrderModal .btn-secondary {
-  background: #6b7280;
+  background: #64748b;
   border: none;
 }
 
 #updateOrderModal .btn-secondary:hover {
-  background: #4b5563;
+  background: #475569;
 }
 </style>
 
@@ -5345,4 +5308,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 </body>
+
 </html>
