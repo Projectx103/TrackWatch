@@ -1,0 +1,2534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trackwise - Team Leader Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #0f172a;
+      --dark-2: #1e293b;
+      --dark-3: #334155;
+      --gray: #64748b;
+      --gray-light: #cbd5e1;
+      --gray-bg: #f8fafc;
+      --white: #ffffff;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.1);
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--gray-bg);
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(180deg, var(--dark) 0%, var(--dark-2) 100%);
+      padding: 2rem 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition);
+    }
+
+    .sidebar-header {
+      padding: 0 2rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 2rem;
+    }
+
+.logo { 
+font-size: 1.75rem; 
+font-weight: 700; 
+color: var(--white); 
+background: linear-gradient(135deg, var(--primary-light), var(--primary));
+-webkit-background-clip: text; 
+-webkit-text-fill-color: transparent;
+background-clip: text; 
+display: flex; align-items: center; gap: 0.75rem; 
+}
+
+.logo i { 
+font-size: 2rem; 
+background: linear-gradient(135deg, var(--primary-light), var(--primary));
+-webkit-background-clip: text; 
+-webkit-text-fill-color: transparent; 
+background-clip: text; 
+}
+
+
+
+
+    .nav-menu {
+      list-style: none;
+      padding: 0 1rem;
+    }
+
+    .nav-item {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.875rem 1rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      border-radius: 0.75rem;
+      transition: var(--transition);
+      font-weight: 500;
+      font-size: 0.9375rem;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--white);
+    }
+
+    .nav-link i {
+      width: 20px;
+      font-size: 1.125rem;
+      text-align: center;
+    }
+
+    .btn i {
+      font-size: 1rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: var(--white);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin: 0;
+    }
+
+    .page-subtitle {
+      color: var(--gray);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: var(--white);
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+      transform: translateY(-1px);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--white);
+      padding: 1.5rem 2rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      position: relative;
+      min-width: 200px;
+    }
+
+    .filter-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .dropdown {
+      position: relative;
+      width: 100%;
+    }
+
+    .dropdown-toggle {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--gray-bg);
+      border: 2px solid transparent;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .dropdown-toggle:hover {
+      border-color: var(--primary-light);
+    }
+
+    .dropdown-toggle.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-lg);
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: var(--transition);
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border-bottom: 1px solid var(--gray-bg);
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item:hover {
+      background: var(--gray-bg);
+      color: var(--primary);
+    }
+
+    /* Search */
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 2px solid var(--gray-light);
+      border-radius: 0.5rem;
+      font-size: 0.9375rem;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+      font-size: 1rem;
+    }
+
+    /* Card */
+    .card {
+      background: var(--white);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--gray-bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin: 0;
+    }
+
+    .card-body {
+      padding: 0;
+    }
+
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      max-height: 70vh;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--dark);
+    }
+
+    th {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--white);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    th:hover {
+      background: var(--dark-2);
+    }
+
+    th.sortable::after {
+      content: "⇅";
+      margin-left: 0.5rem;
+      opacity: 0.5;
+      font-size: 0.75rem;
+    }
+
+    th.sorted-asc::after {
+      content: "↑";
+      opacity: 1;
+      color: var(--primary-light);
+    }
+
+    th.sorted-desc::after {
+      content: "↓";
+      opacity: 1;
+      color: var(--primary-light);
+    }
+
+    td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--gray-bg);
+    }
+
+    tbody tr {
+      transition: var(--transition);
+    }
+
+    tbody tr:hover {
+      background: rgba(99, 102, 241, 0.02);
+    }
+
+    tbody tr.highlight {
+      background: rgba(251, 191, 36, 0.15);
+      animation: pulse 1s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    /* Status Badge */
+    .badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .badge-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .badge-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    /* Customize Panel */
+    .customize-panel {
+      background: var(--white);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .customize-panel.show {
+      max-height: 600px;
+      opacity: 1;
+    }
+
+    .customize-content {
+      padding: 2rem;
+    }
+
+    .column-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .column-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem;
+      background: var(--gray-bg);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .column-checkbox:hover {
+      background: rgba(99, 102, 241, 0.05);
+      border-color: var(--primary-light);
+    }
+
+    .column-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    /* Charts Panel */
+    .charts-panel {
+      background: var(--white);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .charts-panel.show {
+      max-height: 3000px;
+      opacity: 1;
+    }
+
+    .charts-content {
+      padding: 2rem;
+    }
+
+    .chart-container {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--gray-bg);
+      border-radius: 0.75rem;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .chart-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .chart-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .chart-controls select {
+      padding: 0.5rem 1rem;
+      border: 2px solid var(--gray-light);
+      border-radius: 0.375rem;
+      background: var(--white);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .chart-controls select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Loader */
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+
+    .loader-content {
+      background: var(--white);
+      padding: 3rem;
+      border-radius: 1.5rem;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .loader-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--gray-light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--gray-bg);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 1rem;
+      transition: width 0.3s ease;
+    }
+
+    .progress-percent {
+      margin-top: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 1rem;
+      }
+
+      .top-bar, .filter-bar {
+        padding: 1rem;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .search-box {
+        max-width: 100%;
+      }
+    }
+
+    /* Utility Classes */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: var(--white);
+      border-radius: 1rem;
+      box-shadow: var(--shadow-lg);
+      max-width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.9);
+      transition: var(--transition);
+    }
+
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--gray-bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin: 0;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: var(--gray-bg);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--gray-bg);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* Report Cards */
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .report-card {
+      padding: 1.5rem;
+      background: var(--gray-bg);
+      border: 2px solid transparent;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .report-card:hover {
+      border-color: var(--primary);
+      background: var(--white);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .report-card i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .report-card h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .report-card p {
+      font-size: 0.875rem;
+      color: var(--gray);
+      margin: 0;
+    }
+
+    /* Date Range Input */
+    .date-input-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gray);
+    }
+
+    .input-group input {
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--gray-light);
+      border-radius: 0.5rem;
+      font-size: 0.9375rem;
+      transition: var(--transition);
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Report Content */
+    .report-section {
+      margin-bottom: 2rem;
+    }
+
+    .report-section h4 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--gray-bg);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      padding: 1.25rem;
+      background: var(--gray-bg);
+      border-radius: 0.75rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--gray);
+      font-weight: 500;
+    }
+
+    .supplier-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .supplier-item {
+      padding: 1.25rem;
+      background: var(--white);
+      border: 1px solid var(--gray-bg);
+      border-radius: 0.75rem;
+    }
+
+    .supplier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .supplier-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .supplier-badges {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .performance-bar {
+      height: 8px;
+      background: var(--gray-bg);
+      border-radius: 1rem;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .performance-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--success), var(--primary-light));
+      border-radius: 1rem;
+      transition: width 0.3s ease;
+    }
+
+    .performance-stats {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .performance-stats span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-card {
+      padding: 1.25rem;
+      background: var(--white);
+      border: 1px solid var(--gray-bg);
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .user-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .user-role {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .user-stats {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .user-stats span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray);
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--gray-light);
+      color: var(--gray);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+    <div class="logo">
+  <i class="fas fa-chart-line"></i>
+  Trackwise
+</div>
+
+
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="#" class="nav-link active">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" id="chartsMenuBtn">
+          <i class="fas fa-chart-bar"></i>
+          <span>Analytics</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" id="reportsMenuBtn">
+          <i class="fas fa-file-chart"></i>
+          <span>Reports</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" onclick="goToRFQDashboard()">
+          <i class="fas fa-clipboard-list"></i>
+          <span>RFQ Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" id="usersMenuBtn">
+          <i class="fas fa-users"></i>
+          <span>Users</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link" onclick="logout()" style="color: #ef4444;">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div>
+        <h1 class="page-title">Team Leader Dashboard</h1>
+        <p class="page-subtitle">Monitor and manage your team's orders</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" id="btnCustomize">
+          <i class="fas fa-cog"></i> Customize
+        </button>
+        <button class="btn btn-success" onclick="refreshTable()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <button class="btn btn-warning" onclick="exportTableToExcel('ordersTable', 'Order_Report')">
+          <i class="fas fa-file-excel"></i> Export Excel
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label class="filter-label">Buyer</label>
+        <div class="dropdown">
+          <div class="dropdown-toggle" id="buyerFilterBtn">
+            <span id="buyerFilterLabel">All Buyers</span>
+            <span>▼</span>
+          </div>
+          <div class="dropdown-menu" id="buyerFilterDropdown">
+            <!-- Options populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Status</label>
+        <div class="dropdown">
+          <div class="dropdown-toggle" id="statusFilterBtn">
+            <span id="statusFilterLabel">All Status</span>
+            <span>▼</span>
+          </div>
+          <div class="dropdown-menu" id="statusFilterDropdown">
+            <!-- Options populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search orders...">
+      </div>
+    </div>
+
+    <!-- Customize Panel -->
+    <div class="customize-panel" id="customizePanel">
+      <div class="customize-content">
+        <h3 class="card-title mb-2">Customize Table Columns</h3>
+        <button class="btn btn-primary" id="autoFitBtn">
+          <i class="fas fa-arrows-alt-h"></i> Auto Fit Columns
+        </button>
+        <div class="column-grid" id="customizeColumns">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Panel -->
+    <div class="charts-panel" id="chartSlidePanel">
+      <div class="charts-content">
+        <h2 class="card-title mb-2">Order Analytics</h2>
+        
+        <!-- Chart 1 -->
+        <div class="chart-container">
+          <div class="chart-header">
+            <h3 class="chart-title"><i class="fas fa-clock"></i> Monthly Performance</h3>
+            <div class="chart-controls">
+              <select id="monthFilter">
+                <option value="All">All Months</option>
+              </select>
+              <select id="trendLineStatus">
+                <option value="onTime">On Time</option>
+                <option value="delayed">Delayed</option>
+                <option value="pending">Pending</option>
+              </select>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="toggleDataLabels" checked>
+                <span>Show Labels</span>
+              </label>
+            </div>
+          </div>
+          <canvas id="onTimeDelayedChart" style="max-height: 400px;"></canvas>
+        </div>
+
+        <!-- Charts 2 & 3 -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div class="chart-container">
+            <h3 class="chart-title mb-2"><i class="fas fa-box"></i> Orders by Category</h3>
+            <canvas id="ordersPerCategoryChart" style="max-height: 400px;"></canvas>
+          </div>
+          <div class="chart-container">
+            <h3 class="chart-title mb-2"><i class="fas fa-exclamation-triangle"></i> Delay Reasons</h3>
+            <canvas id="delayedReasonsChart" style="max-height: 400px;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Orders Overview</h2>
+        <span id="orderCount" style="color: var(--gray); font-size: 0.875rem;"></span>
+      </div>
+      <div class="card-body">
+        <div class="table-container">
+          <table id="ordersTable">
+            <thead id="ordersHead">
+              <tr><th>Loading...</th></tr>
+            </thead>
+            <tbody id="ordersBody">
+              <tr><td>Loading orders...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Reports Modal -->
+  <div class="modal-overlay" id="reportsModal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-file-chart"></i> Reports Center</h2>
+        <button class="modal-close" onclick="closeModal('reportsModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="report-grid">
+          <div class="report-card" onclick="openDeliveryReport()">
+            <i class="fas fa-truck"></i>
+            <h3>Delivery Performance</h3>
+            <p>Analyze supplier on-time delivery rates and trends</p>
+          </div>
+          <div class="report-card" onclick="openOrderSummary()">
+            <i class="fas fa-chart-pie"></i>
+            <h3>Order Summary</h3>
+            <p>Overview of orders by status, category, and buyer</p>
+          </div>
+          <div class="report-card" onclick="openSupplierAnalysis()">
+            <i class="fas fa-industry"></i>
+            <h3>Supplier Analysis</h3>
+            <p>Compare supplier performance and reliability</p>
+          </div>
+          <div class="report-card" onclick="openBuyerActivity()">
+            <i class="fas fa-user-tie"></i>
+            <h3>Buyer Activity</h3>
+            <p>Track buyer order patterns and performance</p>
+          </div>
+          <div class="report-card" onclick="openDelayAnalysis()">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Delay Analysis</h3>
+            <p>Identify delay patterns and root causes</p>
+          </div>
+          <div class="report-card" onclick="openMonthlyTrends()">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Monthly Trends</h3>
+            <p>View order trends and seasonal patterns</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Range Modal -->
+  <div class="modal-overlay" id="dateRangeModal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 class="modal-title">Select Date Range</h2>
+        <button class="modal-close" onclick="closeModal('dateRangeModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="date-input-group">
+          <div class="input-group">
+            <label>Start Month</label>
+            <input type="month" id="startMonth">
+          </div>
+          <div class="input-group">
+            <label>End Month</label>
+            <input type="month" id="endMonth">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('dateRangeModal')">Cancel</button>
+        <button class="btn btn-primary" id="generateReportBtn">
+          <i class="fas fa-chart-line"></i> Generate Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Display Modal -->
+  <div class="modal-overlay" id="reportDisplayModal">
+    <div class="modal-content" style="max-width: 1200px;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="reportDisplayTitle">Report</h2>
+        <button class="modal-close" onclick="closeModal('reportDisplayModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="reportDisplayContent">
+        <!-- Report content will be injected here -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-warning" onclick="exportReportToExcel()">
+          <i class="fas fa-file-excel"></i> Export to Excel
+        </button>
+        <button class="btn btn-outline" onclick="closeModal('reportDisplayModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Modal -->
+  <div class="modal-overlay" id="usersModal">
+    <div class="modal-content" style="max-width: 900px;">
+      <div class="modal-header">
+        <h2 class="modal-title"><i class="fas fa-users"></i> Team Members</h2>
+        <button class="modal-close" onclick="closeModal('usersModal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="usersContent">
+        <!-- Users will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-overlay" id="loaderOverlay">
+    <div class="loader-content">
+      <div class="loader-spinner"></div>
+      <div class="loader-text" id="loaderText">Verifying user...</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyD9LCzMuEGIiRQrOVCgH6d-jxxJLZ0QBCk",
+      authDomain: "order-monitoring-purchasing.firebaseapp.com",
+      projectId: "order-monitoring-purchasing",
+      storageBucket: "order-monitoring-purchasing.appspot.com",
+      messagingSenderId: "209378598320",
+      appId: "1:209378598320:web:0c143d69bc329a994d8a75"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Global State
+    let allOrderData = [];
+    let filteredData = [];
+    let columnSettings = { visible: [], order: [], widths: {} };
+    let sortState = { column: null, direction: null };
+    let selectedBuyer = "";
+    let selectedStatus = "";
+
+    // Chart instances
+    let chartInstances = {
+      onTimeDelayed: null,
+      category: null,
+      delayReasons: null
+    };
+
+    // Progress Loader
+    function updateProgress(percent, text) {
+      document.getElementById('progressFill').style.width = percent + '%';
+      document.getElementById('progressPercent').textContent = percent + '%';
+      if (text) document.getElementById('loaderText').textContent = text;
+    }
+
+    function hideLoader() {
+      document.getElementById('loaderOverlay').style.display = 'none';
+    }
+
+    function showLoader(text) {
+      document.getElementById('loaderOverlay').style.display = 'flex';
+      updateProgress(0, text);
+    }
+
+    // Column Settings
+    function loadColumnSettings(defaultColumns) {
+      const saved = JSON.parse(localStorage.getItem("tableColumnSettings"));
+      if (saved && Array.isArray(saved.order) && Array.isArray(saved.visible)) {
+        columnSettings = {
+          visible: saved.visible,
+          order: saved.order,
+          widths: saved.widths || {}
+        };
+      } else {
+        columnSettings = {
+          visible: [...defaultColumns],
+          order: [...defaultColumns],
+          widths: {}
+        };
+      }
+    }
+
+    function saveColumnSettings() {
+      localStorage.setItem("tableColumnSettings", JSON.stringify(columnSettings));
+    }
+
+    // Format Date
+    function formatDateDisplay(dateStr) {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return '';
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // Get Status Badge
+    function getStatusBadge(status) {
+      if (!status) return '';
+      const statusLower = status.toLowerCase();
+      if (statusLower.includes('on time')) return '<span class="badge badge-success">On Time</span>';
+      if (statusLower.includes('delayed')) return '<span class="badge badge-danger">Delayed</span>';
+      if (statusLower.includes('pending')) return '<span class="badge badge-warning">Pending</span>';
+      return `<span class="badge">${status}</span>`;
+    }
+
+    // Build Table - Optimized
+    function buildTable(rows) {
+      const head = document.getElementById("ordersHead");
+      const body = document.getElementById("ordersBody");
+      
+      if (!rows.length) {
+        head.innerHTML = "<tr><th>No Data</th></tr>";
+        body.innerHTML = "<tr><td>No orders found</td></tr>";
+        return;
+      }
+
+      // Get all columns
+      const allColumns = new Set(["userId"]);
+      rows.forEach(r => Object.keys(r.order).forEach(k => allColumns.add(k)));
+      const allColArray = Array.from(allColumns);
+
+      loadColumnSettings(allColArray);
+
+      // Build header
+      const headerRow = document.createElement("tr");
+      columnSettings.order.forEach(col => {
+        if (!columnSettings.visible.includes(col)) return;
+
+        const th = document.createElement("th");
+        th.textContent = col;
+        th.dataset.col = col;
+        th.classList.add("sortable");
+        
+        // Add sort indicator
+        if (sortState.column === col) {
+          th.classList.add(sortState.direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        }
+
+        // Click to sort
+        th.addEventListener("click", () => sortTable(col));
+
+        headerRow.appendChild(th);
+      });
+
+      head.innerHTML = "";
+      head.appendChild(headerRow);
+
+      // Build body
+      body.innerHTML = "";
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        columnSettings.order.forEach(col => {
+          if (!columnSettings.visible.includes(col)) return;
+          
+          const td = document.createElement("td");
+          
+          if (col === "userId") {
+            td.textContent = r.userId;
+          } else if (["Delivery Date", "Order Date", "Approved Date", "Need By Date"].includes(col)) {
+            td.textContent = formatDateDisplay(r.order[col]);
+          } else if (col === "Status") {
+            td.innerHTML = getStatusBadge(r.order[col]);
+          } else {
+            td.textContent = r.order[col] ?? "";
+          }
+          
+          tr.appendChild(td);
+        });
+        body.appendChild(tr);
+      });
+
+      // Update order count
+      document.getElementById("orderCount").textContent = `${rows.length} orders`;
+
+      // Build customize panel
+      buildCustomizePanel(allColArray);
+    }
+
+    // Sort Table
+    function sortTable(column) {
+      if (sortState.column === column) {
+        sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortState.column = column;
+        sortState.direction = 'asc';
+      }
+
+      const sorted = [...filteredData].sort((a, b) => {
+        let aVal = column === 'userId' ? a.userId : (a.order[column] ?? '');
+        let bVal = column === 'userId' ? b.userId : (b.order[column] ?? '');
+
+        // Handle dates
+        if (["Delivery Date", "Order Date", "Approved Date", "Need By Date"].includes(column)) {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        }
+
+        if (aVal < bVal) return sortState.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortState.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      buildTable(sorted);
+    }
+
+    // Build Customize Panel
+    function buildCustomizePanel(columns) {
+      const container = document.getElementById("customizeColumns");
+      container.innerHTML = "";
+
+      columns.forEach(col => {
+        const label = document.createElement("label");
+        label.className = "column-checkbox";
+        
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.checked = columnSettings.visible.includes(col);
+        input.dataset.col = col;
+        
+        input.addEventListener("change", (e) => {
+          const colName = e.target.dataset.col;
+          if (e.target.checked) {
+            if (!columnSettings.visible.includes(colName)) {
+              columnSettings.visible.push(colName);
+            }
+          } else {
+            columnSettings.visible = columnSettings.visible.filter(c => c !== colName);
+          }
+          saveColumnSettings();
+          buildTable(filteredData);
+        });
+
+        const span = document.createElement("span");
+        span.textContent = col;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        container.appendChild(label);
+      });
+    }
+
+    // Filter Functions
+    function applyFilters() {
+      filteredData = allOrderData.filter(row => {
+        const buyerCol = row.order["Buyer"] || row.order["buyer"] || "";
+        const statusCol = row.order["Status"] || row.order["status"] || "";
+        
+        const buyerMatch = !selectedBuyer || buyerCol === selectedBuyer;
+        const statusMatch = !selectedStatus || statusCol === selectedStatus;
+        
+        return buyerMatch && statusMatch;
+      });
+
+      buildTable(filteredData);
+    }
+
+    // Build Filter Dropdowns
+    function buildBuyerFilter() {
+      const buyers = new Set();
+      allOrderData.forEach(r => {
+        const buyer = r.order["Buyer"] || r.order["buyer"] || "";
+        if (buyer) buyers.add(buyer);
+      });
+
+      const dropdown = document.getElementById("buyerFilterDropdown");
+      dropdown.innerHTML = '<div class="dropdown-item" data-value="">All Buyers</div>';
+      
+      Array.from(buyers).sort().forEach(buyer => {
+        const item = document.createElement("div");
+        item.className = "dropdown-item";
+        item.dataset.value = buyer;
+        item.textContent = buyer;
+        dropdown.appendChild(item);
+      });
+    }
+
+    function buildStatusFilter() {
+      const statuses = new Set();
+      allOrderData.forEach(r => {
+        const status = r.order["Status"] || r.order["status"] || "";
+        if (status) statuses.add(status);
+      });
+
+      const dropdown = document.getElementById("statusFilterDropdown");
+      dropdown.innerHTML = '<div class="dropdown-item" data-value="">All Status</div>';
+      
+      Array.from(statuses).sort().forEach(status => {
+        const item = document.createElement("div");
+        item.className = "dropdown-item";
+        item.dataset.value = status;
+        item.textContent = status;
+        dropdown.appendChild(item);
+      });
+    }
+
+    // Search Function with Debounce
+    let searchTimeout;
+    function handleSearch(term) {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const rows = document.querySelectorAll("#ordersBody tr");
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          if (text.includes(term.toLowerCase())) {
+            row.style.display = "";
+            if (term) {
+              row.classList.add("highlight");
+              setTimeout(() => row.classList.remove("highlight"), 2000);
+            }
+          } else {
+            row.style.display = "none";
+          }
+        });
+      }, 300);
+    }
+
+    // Charts
+    function renderCharts() {
+      renderOnTimeDelayedChart();
+      renderCategoryChart();
+      renderDelayReasonsChart();
+    }
+
+    function renderOnTimeDelayedChart() {
+      const canvas = document.getElementById("onTimeDelayedChart");
+      const ctx = canvas.getContext("2d");
+
+      if (chartInstances.onTimeDelayed) {
+        chartInstances.onTimeDelayed.destroy();
+      }
+
+      // Process data
+      const monthlyStats = {};
+      filteredData.forEach(row => {
+        const deliveryDate = new Date(row.order["Delivery Date"]);
+        if (isNaN(deliveryDate)) return;
+
+        const monthYear = deliveryDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        if (!monthlyStats[monthYear]) {
+          monthlyStats[monthYear] = { onTime: 0, delayed: 0, pending: 0 };
+        }
+
+        const status = (row.order["Status"] || "").toLowerCase();
+        if (status.includes('on time')) monthlyStats[monthYear].onTime++;
+        else if (status.includes('delayed')) monthlyStats[monthYear].delayed++;
+        else monthlyStats[monthYear].pending++;
+      });
+
+      const labels = Object.keys(monthlyStats);
+      const datasets = [
+        {
+          label: 'On Time',
+          data: labels.map(m => monthlyStats[m].onTime),
+          backgroundColor: 'rgba(16, 185, 129, 0.8)',
+          borderRadius: 6
+        },
+        {
+          label: 'Delayed',
+          data: labels.map(m => monthlyStats[m].delayed),
+          backgroundColor: 'rgba(239, 68, 68, 0.8)',
+          borderRadius: 6
+        },
+        {
+          label: 'Pending',
+          data: labels.map(m => monthlyStats[m].pending),
+          backgroundColor: 'rgba(245, 158, 11, 0.8)',
+          borderRadius: 6
+        }
+      ];
+
+      chartInstances.onTimeDelayed = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { position: 'bottom' },
+            datalabels: {
+              display: document.getElementById("toggleDataLabels")?.checked,
+              color: '#fff',
+              font: { weight: 'bold', size: 10 }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    function renderCategoryChart() {
+      const canvas = document.getElementById("ordersPerCategoryChart");
+      const ctx = canvas.getContext("2d");
+
+      if (chartInstances.category) {
+        chartInstances.category.destroy();
+      }
+
+      const categories = { Electronics: 0, IT: 0, Electrical: 0, Other: 0 };
+      filteredData.forEach(row => {
+        const item = (row.order["Item"] || "").toUpperCase();
+        if (item.startsWith("EC")) categories.Electronics++;
+        else if (item.startsWith("IT")) categories.IT++;
+        else if (item.startsWith("EL")) categories.Electrical++;
+        else categories.Other++;
+      });
+
+      chartInstances.category = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(categories),
+          datasets: [{
+            data: Object.values(categories),
+            backgroundColor: [
+              'rgba(99, 102, 241, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(245, 158, 11, 0.8)',
+              'rgba(239, 68, 68, 0.8)'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'right' }
+          }
+        }
+      });
+    }
+
+    function renderDelayReasonsChart() {
+      const canvas = document.getElementById("delayedReasonsChart");
+      const ctx = canvas.getContext("2d");
+
+      if (chartInstances.delayReasons) {
+        chartInstances.delayReasons.destroy();
+      }
+
+      const reasons = {};
+      filteredData.forEach(row => {
+        const status = (row.order["Status"] || "").toLowerCase();
+        if (status.includes("delayed")) {
+          const reason = row.order["Reason"] || "No Reason";
+          reasons[reason] = (reasons[reason] || 0) + 1;
+        }
+      });
+
+      chartInstances.delayReasons = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(reasons),
+          datasets: [{
+            label: 'Count',
+            data: Object.values(reasons),
+            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // Event Listeners
+    document.addEventListener("DOMContentLoaded", () => {
+      // Customize button
+      document.getElementById("btnCustomize").addEventListener("click", () => {
+        const panel = document.getElementById("customizePanel");
+        panel.classList.toggle("show");
+      });
+
+      // Charts button
+      document.getElementById("chartsMenuBtn").addEventListener("click", (e) => {
+        e.preventDefault();
+        const panel = document.getElementById("chartSlidePanel");
+        panel.classList.toggle("show");
+        if (panel.classList.contains("show")) {
+          renderCharts();
+        }
+      });
+
+      // Auto fit button
+      document.getElementById("autoFitBtn").addEventListener("click", () => {
+        alert("Auto-fit columns feature coming soon!");
+      });
+
+      // Buyer filter
+      const buyerBtn = document.getElementById("buyerFilterBtn");
+      const buyerDropdown = document.getElementById("buyerFilterDropdown");
+      
+      buyerBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        buyerDropdown.classList.toggle("show");
+        buyerBtn.classList.toggle("active");
+      });
+
+      buyerDropdown.addEventListener("click", (e) => {
+        if (e.target.classList.contains("dropdown-item")) {
+          selectedBuyer = e.target.dataset.value;
+          document.getElementById("buyerFilterLabel").textContent = 
+            e.target.textContent;
+          buyerDropdown.classList.remove("show");
+          buyerBtn.classList.remove("active");
+          applyFilters();
+        }
+      });
+
+      // Status filter
+      const statusBtn = document.getElementById("statusFilterBtn");
+      const statusDropdown = document.getElementById("statusFilterDropdown");
+      
+      statusBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        statusDropdown.classList.toggle("show");
+        statusBtn.classList.toggle("active");
+      });
+
+      statusDropdown.addEventListener("click", (e) => {
+        if (e.target.classList.contains("dropdown-item")) {
+          selectedStatus = e.target.dataset.value;
+          document.getElementById("statusFilterLabel").textContent = 
+            e.target.textContent;
+          statusDropdown.classList.remove("show");
+          statusBtn.classList.remove("active");
+          applyFilters();
+        }
+      });
+
+      // Close dropdowns on outside click
+      document.addEventListener("click", () => {
+        buyerDropdown.classList.remove("show");
+        statusDropdown.classList.remove("show");
+        buyerBtn.classList.remove("active");
+        statusBtn.classList.remove("active");
+      });
+
+      // Search
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        handleSearch(e.target.value);
+      });
+
+      // Chart controls
+      document.getElementById("monthFilter")?.addEventListener("change", renderCharts);
+      document.getElementById("toggleDataLabels")?.addEventListener("change", renderCharts);
+      document.getElementById("trendLineStatus")?.addEventListener("change", renderCharts);
+
+      // Reports menu
+      document.getElementById("reportsMenuBtn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        openModal('reportsModal');
+      });
+
+      // Users menu
+      document.getElementById("usersMenuBtn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        loadTeamMembers();
+      });
+    });
+
+    // Firebase Auth
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = "Loginindex.html";
+        return;
+      }
+
+      try {
+        updateProgress(20, "Verifying credentials...");
+
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        const data = userDoc.data();
+
+        if (!data || data.role?.toLowerCase() !== "team leader") {
+          alert("Access denied. Only Team Leaders allowed.");
+          auth.signOut();
+          return;
+        }
+
+        updateProgress(40, "Loading team data...");
+
+        const assignedUsers = data.teamMembers || [];
+        if (assignedUsers.length === 0) {
+          alert("No users assigned to you yet.");
+          hideLoader();
+          return;
+        }
+
+        updateProgress(60, "Fetching orders...");
+
+        const rows = [];
+        for (const uid of assignedUsers) {
+          const snap = await db.collection("orders").doc(uid).collection("userOrders").get();
+          snap.forEach(doc => {
+            rows.push({ userId: uid, order: doc.data() });
+          });
+        }
+
+        updateProgress(80, "Processing data...");
+
+        allOrderData = rows;
+        filteredData = rows;
+
+        updateProgress(90, "Building table...");
+
+        buildTable(filteredData);
+        buildBuyerFilter();
+        buildStatusFilter();
+
+        updateProgress(100, "Complete!");
+
+        setTimeout(hideLoader, 500);
+
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Error loading orders. Please try again.");
+        hideLoader();
+      }
+    });
+
+    // Utility Functions
+    function refreshTable() {
+      showLoader("Refreshing...");
+      window.location.reload();
+    }
+
+    function exportTableToExcel(tableId, filename) {
+      const table = document.getElementById(tableId);
+      if (!table) return alert("Table not found!");
+      
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.table_to_sheet(table);
+      XLSX.utils.book_append_sheet(wb, ws, "Orders");
+      XLSX.writeFile(wb, `${filename}.xlsx`);
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "Loginindex.html";
+      });
+    }
+
+    function goToRFQDashboard() {
+      window.location.href = "RFQ Monitoringv1.html";
+    }
+
+    // Modal Functions
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('show');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    // Close modals on outside click
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('show');
+      }
+    });
+
+    // Report Functions
+    let currentReportData = null;
+
+    function openDeliveryReport() {
+      closeModal('reportsModal');
+      openModal('dateRangeModal');
+      document.getElementById('generateReportBtn').onclick = generateDeliveryReport;
+    }
+
+    function openOrderSummary() {
+      closeModal('reportsModal');
+      generateOrderSummary();
+    }
+
+    function openSupplierAnalysis() {
+      closeModal('reportsModal');
+      openModal('dateRangeModal');
+      document.getElementById('generateReportBtn').onclick = generateSupplierAnalysis;
+    }
+
+    function openBuyerActivity() {
+      closeModal('reportsModal');
+      generateBuyerActivity();
+    }
+
+    function openDelayAnalysis() {
+      closeModal('reportsModal');
+      generateDelayAnalysis();
+    }
+
+    function openMonthlyTrends() {
+      closeModal('reportsModal');
+      generateMonthlyTrends();
+    }
+
+    // Generate Delivery Performance Report
+    function generateDeliveryReport() {
+      const start = document.getElementById('startMonth').value;
+      const end = document.getElementById('endMonth').value;
+
+      if (!start || !end) {
+        alert('Please select both start and end months');
+        return;
+      }
+
+      closeModal('dateRangeModal');
+
+      const startDate = new Date(start + "-01");
+      const endDate = new Date(end + "-01");
+      endDate.setMonth(endDate.getMonth() + 1);
+
+      const filteredOrders = allOrderData.filter(row => {
+        const orderDate = new Date(row.order["Order Date"]);
+        return orderDate >= startDate && orderDate < endDate;
+      });
+
+      // Group by supplier
+      const supplierStats = {};
+      filteredOrders.forEach(row => {
+        const supplier = row.order["Supplier"] || "Unknown";
+        if (!supplierStats[supplier]) {
+          supplierStats[supplier] = { onTime: 0, delayed: 0, pending: 0, total: 0, avgDays: [] };
+        }
+
+        const status = (row.order["Status"] || "").toLowerCase();
+        supplierStats[supplier].total++;
+        
+        if (status.includes('on time')) supplierStats[supplier].onTime++;
+        else if (status.includes('delayed')) supplierStats[supplier].delayed++;
+        else supplierStats[supplier].pending++;
+
+        // Calculate delivery time
+        const orderDate = new Date(row.order["Order Date"]);
+        const deliveryDate = new Date(row.order["Delivery Date"]);
+        if (!isNaN(deliveryDate)) {
+          const days = Math.floor((deliveryDate - orderDate) / (1000 * 60 * 60 * 24));
+          supplierStats[supplier].avgDays.push(days);
+        }
+      });
+
+      // Calculate scores
+      const suppliersArray = Object.entries(supplierStats).map(([name, stats]) => {
+        const onTimeRate = stats.total > 0 ? (stats.onTime / stats.total * 100) : 0;
+        const avgDelivery = stats.avgDays.length > 0 
+          ? stats.avgDays.reduce((a, b) => a + b, 0) / stats.avgDays.length 
+          : 0;
+        return { name, ...stats, onTimeRate, avgDelivery };
+      }).sort((a, b) => b.onTimeRate - a.onTimeRate);
+
+      // Build report HTML
+      let html = `
+        <div class="report-section">
+          <h4><i class="fas fa-trophy"></i> Supplier Performance Rankings</h4>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">${filteredOrders.length}</div>
+              <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${suppliersArray.length}</div>
+              <div class="stat-label">Active Suppliers</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${Math.round(suppliersArray.reduce((sum, s) => sum + s.onTimeRate, 0) / suppliersArray.length)}%</div>
+              <div class="stat-label">Avg On-Time Rate</div>
+            </div>
+          </div>
+        </div>
+        <div class="report-section">
+          <h4><i class="fas fa-list"></i> Supplier Details</h4>
+          <div class="supplier-list">
+      `;
+
+      suppliersArray.forEach((supplier, index) => {
+        const badges = [];
+        if (index === 0) badges.push('<span class="badge badge-warning">🥇 Top Performer</span>');
+        if (supplier.avgDelivery < 5) badges.push('<span class="badge badge-success">⚡ Fast Delivery</span>');
+        if (supplier.onTimeRate >= 90) badges.push('<span class="badge badge-success">✓ Reliable</span>');
+
+        html += `
+          <div class="supplier-item">
+            <div class="supplier-header">
+              <div class="supplier-name">${supplier.name}</div>
+              <div class="supplier-badges">${badges.join('')}</div>
+            </div>
+            <div class="performance-bar">
+              <div class="performance-fill" style="width: ${supplier.onTimeRate}%"></div>
+            </div>
+            <div class="performance-stats">
+              <span><i class="fas fa-check-circle" style="color: var(--success)"></i> On Time: ${supplier.onTime}</span>
+              <span><i class="fas fa-times-circle" style="color: var(--danger)"></i> Delayed: ${supplier.delayed}</span>
+              <span><i class="fas fa-clock" style="color: var(--warning)"></i> Pending: ${supplier.pending}</span>
+              <span><i class="fas fa-shipping-fast"></i> Avg: ${supplier.avgDelivery.toFixed(1)} days</span>
+              <span><strong>${supplier.onTimeRate.toFixed(1)}%</strong> On-Time Rate</span>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+
+      document.getElementById('reportDisplayTitle').innerHTML = '<i class="fas fa-truck"></i> Delivery Performance Report';
+      document.getElementById('reportDisplayContent').innerHTML = html;
+      currentReportData = { suppliers: suppliersArray, title: 'Delivery_Performance' };
+      openModal('reportDisplayModal');
+    }
+
+    // Generate Order Summary
+    function generateOrderSummary() {
+      const statusCounts = { 'On Time': 0, 'Delayed': 0, 'Pending': 0, 'Other': 0 };
+      const categoryCounts = { Electronics: 0, IT: 0, Electrical: 0, Other: 0 };
+      const buyerCounts = {};
+
+      allOrderData.forEach(row => {
+        const status = (row.order["Status"] || "").toLowerCase();
+        if (status.includes('on time')) statusCounts['On Time']++;
+        else if (status.includes('delayed')) statusCounts['Delayed']++;
+        else if (status.includes('pending')) statusCounts['Pending']++;
+        else statusCounts['Other']++;
+
+        const item = (row.order["Item"] || "").toUpperCase();
+        if (item.startsWith("EC")) categoryCounts.Electronics++;
+        else if (item.startsWith("IT")) categoryCounts.IT++;
+        else if (item.startsWith("EL")) categoryCounts.Electrical++;
+        else categoryCounts.Other++;
+
+        const buyer = row.order["Buyer"] || "Unknown";
+        buyerCounts[buyer] = (buyerCounts[buyer] || 0) + 1;
+      });
+
+      const topBuyers = Object.entries(buyerCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      let html = `
+        <div class="report-section">
+          <h4><i class="fas fa-chart-pie"></i> Order Statistics</h4>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">${allOrderData.length}</div>
+              <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" style="color: var(--success)">${statusCounts['On Time']}</div>
+              <div class="stat-label">On Time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" style="color: var(--danger)">${statusCounts['Delayed']}</div>
+              <div class="stat-label">Delayed</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" style="color: var(--warning)">${statusCounts['Pending']}</div>
+              <div class="stat-label">Pending</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <h4><i class="fas fa-boxes"></i> Orders by Category</h4>
+          <div class="stats-grid">
+            ${Object.entries(categoryCounts).map(([cat, count]) => `
+              <div class="stat-card">
+                <div class="stat-value">${count}</div>
+                <div class="stat-label">${cat}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="report-section">
+          <h4><i class="fas fa-user-tie"></i> Top 5 Buyers</h4>
+          <div class="supplier-list">
+            ${topBuyers.map(([buyer, count]) => `
+              <div class="supplier-item">
+                <div class="supplier-header">
+                  <div class="supplier-name">${buyer}</div>
+                  <span class="badge badge-primary">${count} orders</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('reportDisplayTitle').innerHTML = '<i class="fas fa-chart-pie"></i> Order Summary Report';
+      document.getElementById('reportDisplayContent').innerHTML = html;
+      currentReportData = { statusCounts, categoryCounts, buyerCounts, title: 'Order_Summary' };
+      openModal('reportDisplayModal');
+    }
+
+    // Generate Supplier Analysis
+    function generateSupplierAnalysis() {
+      const start = document.getElementById('startMonth').value;
+      const end = document.getElementById('endMonth').value;
+
+      if (!start || !end) {
+        alert('Please select both start and end months');
+        return;
+      }
+
+      closeModal('dateRangeModal');
+      generateDeliveryReport(); // Reuse delivery report logic
+    }
+
+    // Generate Buyer Activity
+    function generateBuyerActivity() {
+      const buyerStats = {};
+
+      allOrderData.forEach(row => {
+        const buyer = row.order["Buyer"] || "Unknown";
+        if (!buyerStats[buyer]) {
+          buyerStats[buyer] = { total: 0, onTime: 0, delayed: 0, pending: 0 };
+        }
+
+        buyerStats[buyer].total++;
+        const status = (row.order["Status"] || "").toLowerCase();
+        if (status.includes('on time')) buyerStats[buyer].onTime++;
+        else if (status.includes('delayed')) buyerStats[buyer].delayed++;
+        else buyerStats[buyer].pending++;
+      });
+
+      const buyersArray = Object.entries(buyerStats)
+        .map(([name, stats]) => ({
+          name,
+          ...stats,
+          onTimeRate: stats.total > 0 ? (stats.onTime / stats.total * 100) : 0
+        }))
+        .sort((a, b) => b.total - a.total);
+
+      let html = `
+        <div class="report-section">
+          <h4><i class="fas fa-users"></i> Buyer Performance</h4>
+          <div class="supplier-list">
+      `;
+
+      buyersArray.forEach(buyer => {
+        html += `
+          <div class="supplier-item">
+            <div class="supplier-header">
+              <div class="supplier-name">${buyer.name}</div>
+              <span class="badge badge-primary">${buyer.total} orders</span>
+            </div>
+            <div class="performance-bar">
+              <div class="performance-fill" style="width: ${buyer.onTimeRate}%"></div>
+            </div>
+            <div class="performance-stats">
+              <span><i class="fas fa-check-circle" style="color: var(--success)"></i> On Time: ${buyer.onTime}</span>
+              <span><i class="fas fa-times-circle" style="color: var(--danger)"></i> Delayed: ${buyer.delayed}</span>
+              <span><i class="fas fa-clock" style="color: var(--warning)"></i> Pending: ${buyer.pending}</span>
+              <span><strong>${buyer.onTimeRate.toFixed(1)}%</strong> On-Time Rate</span>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+
+      document.getElementById('reportDisplayTitle').innerHTML = '<i class="fas fa-user-tie"></i> Buyer Activity Report';
+      document.getElementById('reportDisplayContent').innerHTML = html;
+      currentReportData = { buyers: buyersArray, title: 'Buyer_Activity' };
+      openModal('reportDisplayModal');
+    }
+
+    // Generate Delay Analysis
+    function generateDelayAnalysis() {
+      const delayReasons = {};
+      let totalDelayed = 0;
+
+      allOrderData.forEach(row => {
+        const status = (row.order["Status"] || "").toLowerCase();
+        if (status.includes('delayed')) {
+          totalDelayed++;
+          const reason = row.order["Reason"] || "No Reason Specified";
+          delayReasons[reason] = (delayReasons[reason] || 0) + 1;
+        }
+      });
+
+      const reasonsArray = Object.entries(delayReasons)
+        .map(([reason, count]) => ({
+          reason,
+          count,
+          percentage: (count / totalDelayed * 100).toFixed(1)
+        }))
+        .sort((a, b) => b.count - a.count);
+
+      let html = `
+        <div class="report-section">
+          <h4><i class="fas fa-exclamation-circle"></i> Delay Overview</h4>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" style="color: var(--danger)">${totalDelayed}</div>
+              <div class="stat-label">Total Delayed Orders</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${reasonsArray.length}</div>
+              <div class="stat-label">Unique Reasons</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${((totalDelayed / allOrderData.length) * 100).toFixed(1)}%</div>
+              <div class="stat-label">Delay Rate</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <h4><i class="fas fa-list"></i> Top Delay Reasons</h4>
+          <div class="supplier-list">
+            ${reasonsArray.map((item, index) => `
+              <div class="supplier-item">
+                <div class="supplier-header">
+                  <div class="supplier-name">${index + 1}. ${item.reason}</div>
+                  <span class="badge badge-danger">${item.count} orders (${item.percentage}%)</span>
+                </div>
+                <div class="performance-bar">
+                  <div class="performance-fill" style="width: ${item.percentage}%; background: linear-gradient(90deg, var(--danger), var(--warning))"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('reportDisplayTitle').innerHTML = '<i class="fas fa-exclamation-circle"></i> Delay Analysis Report';
+      document.getElementById('reportDisplayContent').innerHTML = html;
+      currentReportData = { reasons: reasonsArray, title: 'Delay_Analysis' };
+      openModal('reportDisplayModal');
+    }
+
+    // Generate Monthly Trends
+    function generateMonthlyTrends() {
+      const monthlyData = {};
+
+      allOrderData.forEach(row => {
+        const orderDate = new Date(row.order["Order Date"]);
+        if (isNaN(orderDate)) return;
+
+        const monthYear = orderDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+        if (!monthlyData[monthYear]) {
+          monthlyData[monthYear] = { total: 0, onTime: 0, delayed: 0, pending: 0 };
+        }
+
+        monthlyData[monthYear].total++;
+        const status = (row.order["Status"] || "").toLowerCase();
+        if (status.includes('on time')) monthlyData[monthYear].onTime++;
+        else if (status.includes('delayed')) monthlyData[monthYear].delayed++;
+        else monthlyData[monthYear].pending++;
+      });
+
+      const monthsArray = Object.entries(monthlyData)
+        .map(([month, stats]) => ({
+          month,
+          ...stats,
+          onTimeRate: stats.total > 0 ? (stats.onTime / stats.total * 100) : 0
+        }))
+        .sort((a, b) => new Date('1 ' + a.month) - new Date('1 ' + b.month));
+
+      let html = `
+        <div class="report-section">
+          <h4><i class="fas fa-calendar-alt"></i> Monthly Overview</h4>
+          <div class="supplier-list">
+      `;
+
+      monthsArray.forEach(month => {
+        html += `
+          <div class="supplier-item">
+            <div class="supplier-header">
+              <div class="supplier-name">${month.month}</div>
+              <span class="badge badge-primary">${month.total} orders</span>
+            </div>
+            <div class="performance-bar">
+              <div class="performance-fill" style="width: ${month.onTimeRate}%"></div>
+            </div>
+            <div class="performance-stats">
+              <span><i class="fas fa-check-circle" style="color: var(--success)"></i> On Time: ${month.onTime}</span>
+              <span><i class="fas fa-times-circle" style="color: var(--danger)"></i> Delayed: ${month.delayed}</span>
+              <span><i class="fas fa-clock" style="color: var(--warning)"></i> Pending: ${month.pending}</span>
+              <span><strong>${month.onTimeRate.toFixed(1)}%</strong> On-Time Rate</span>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+
+      document.getElementById('reportDisplayTitle').innerHTML = '<i class="fas fa-calendar-alt"></i> Monthly Trends Report';
+      document.getElementById('reportDisplayContent').innerHTML = html;
+      currentReportData = { months: monthsArray, title: 'Monthly_Trends' };
+      openModal('reportDisplayModal');
+    }
+
+    // Export Report to Excel
+    function exportReportToExcel() {
+      if (!currentReportData) return;
+      
+      // Create a simple export based on current report data
+      const table = document.getElementById('reportDisplayContent').querySelector('table') 
+        || createTableFromReport();
+      
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.table_to_sheet(table);
+      XLSX.utils.book_append_sheet(wb, ws, "Report");
+      XLSX.writeFile(wb, `${currentReportData.title}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+    function createTableFromReport() {
+      // Create a temporary table from report data
+      const table = document.createElement('table');
+      table.innerHTML = document.getElementById('reportDisplayContent').innerHTML
+        .replace(/<[^>]*>/g, '\t')
+        .split('\n')
+        .map(line => `<tr><td>${line}</td></tr>`)
+        .join('');
+      return table;
+    }
+
+    // Load Team Members
+    async function loadTeamMembers() {
+      showLoader('Loading team members...');
+      
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const userDoc = await db.collection("users").doc(user.uid).get();
+        const data = userDoc.data();
+        const teamMembers = data.teamMembers || [];
+
+        let html = '<div class="report-section"><h4><i class="fas fa-users"></i> Your Team</h4>';
+
+        for (const uid of teamMembers) {
+          const memberDoc = await db.collection("users").doc(uid).get();
+          const memberData = memberDoc.data();
+          
+          if (!memberData) continue;
+
+          // Count orders for this member
+          const ordersCount = allOrderData.filter(row => row.userId === uid).length;
+          const onTimeCount = allOrderData.filter(row => {
+            if (row.userId !== uid) return false;
+            const status = (row.order["Status"] || "").toLowerCase();
+            return status.includes('on time');
+          }).length;
+
+          // Get name from fullName field (not name)
+          const fullName = memberData.fullName || memberData.name || 'Unknown User';
+          const initials = fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+          const userRole = memberData.role || 'team member';
+          const userEmail = memberData.email || 'No email';
+
+          // Calculate on-time percentage
+          const onTimePercentage = ordersCount > 0 ? ((onTimeCount / ordersCount) * 100).toFixed(1) : 0;
+
+          html += `
+            <div class="user-card">
+              <div class="user-avatar">${initials}</div>
+              <div class="user-info">
+                <div class="user-name">${fullName}</div>
+                <div class="user-role">${userRole.charAt(0).toUpperCase() + userRole.slice(1)}</div>
+                <div class="user-stats">
+                  <span><i class="fas fa-shopping-cart"></i> ${ordersCount} orders</span>
+                  <span><i class="fas fa-check-circle" style="color: var(--success)"></i> ${onTimeCount} on-time (${onTimePercentage}%)</span>
+                  <span><i class="fas fa-envelope"></i> ${userEmail}</span>
+                </div>
+              </div>
+              <div class="user-actions">
+                <button class="btn btn-sm btn-outline" onclick="viewMemberOrders('${uid}', '${fullName}')">
+                  <i class="fas fa-eye"></i> View Orders
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        html += '</div>';
+
+        document.getElementById('usersContent').innerHTML = html;
+        hideLoader();
+        openModal('usersModal');
+
+      } catch (err) {
+        console.error('Error loading team members:', err);
+        alert('Error loading team members');
+        hideLoader();
+      }
+    }
+
+    function viewMemberOrders(userId, userName) {
+      selectedBuyer = ""; // Reset buyer filter
+      selectedStatus = ""; // Reset status filter
+      
+      // Filter by userId
+      filteredData = allOrderData.filter(row => row.userId === userId);
+      buildTable(filteredData);
+      
+      closeModal('usersModal');
+      
+      // Update page title to show filtered view
+      const subtitle = document.querySelector('.page-subtitle');
+      if (subtitle) {
+        subtitle.textContent = `Showing orders for: ${userName}`;
+      }
+    }
+  </script>
+</body>
+</html>

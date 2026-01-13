@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – Order Monitoring</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="h-full">
+  <div class="h-screen flex overflow-hidden">
+    <!-- Left Side - Welcome Section (Hidden on mobile) -->
+    <div class="items-center justify-center bg-gradient-to-br from-blue-600 hidden lg:flex px-12 text-white to-blue-800 w-1/2">
+      <div class="text-center animate-fadeIn max-w-md">
+        <h1 class="font-bold leading-tight mb-4 text-4xl">Welcome Back</h1>
+        <p class="mb-6 text-lg">Monitor your orders efficiently and stay on top of every transaction.</p>
+        <img alt="Dashboard" class="max-w-full rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=700&q=80">
+      </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="w-full flex justify-center flex-col items-center lg:px-24 lg:w-1/2 px-6">
+      <div class="w-full max-w-md space-y-8">
+        <div>
+          <h2 class="text-center mt-6 font-extrabold text-3xl text-gray-900">Sign in to your account</h2>
+          <p class="text-sm text-center mt-2 text-gray-600">Secure access to your dashboard</p>
+        </div>
+
+        <form autocomplete="off" class="mt-8 space-y-6" id="loginForm">
+          <div class="rounded-md shadow-sm space-y-5">
+            <div>
+              <label class="text-sm block font-medium text-gray-700" for="email">Email address</label>
+              <input class="w-full border px-4 py-3 rounded-md block border-gray-300 mt-1" id="email" name="email" required type="email">
+            </div>
+            <div>
+              <label class="text-sm block font-medium text-gray-700" for="password">Password</label>
+              <input class="w-full border px-4 py-3 rounded-md block border-gray-300 mt-1" id="password" name="password" required type="password">
+            </div>
+          </div>
+
+          <div class="text-sm text-right w-full">
+            <button class="font-medium hover:text-blue-500 text-blue-600 focus:outline-none" type="button" id="forgotPasswordBtn">
+              Forgot password?
+            </button>
+          </div>
+
+          <div>
+            <button class="w-full border px-4 py-3 rounded-md bg-blue-600 border-transparent flex hover:bg-blue-700 justify-center shadow-sm text-white" type="submit">
+              Sign in
+            </button>
+          </div>
+        </form>
+
+        <p class="text-sm text-center mt-2 text-red-600" id="errorMessage"></p>
+
+        <div class="text-sm text-center mt-6">
+          Don't have an account? 
+          <a class="font-medium hover:text-blue-500 text-blue-600" href="index.html">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js';
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: 'AIzaSyD9LCzMuEGIiRQrOVCgH6d-jxxJLZ0QBCk',
+      authDomain: 'order-monitoring-purchasing.firebaseapp.com',
+      projectId: 'order-monitoring-purchasing',
+      storageBucket: 'order-monitoring-purchasing.appspot.com',
+      messagingSenderId: '209378598320',
+      appId: '1:209378598320:web:0c143d69bc329a994d8a75'
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Get DOM elements
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+
+    // Forgot Password Handler
+    forgotPasswordBtn.addEventListener('click', async () => {
+      const email = loginForm.email.value.trim();
+      
+      if (!email) {
+        return showError('Please enter your email to reset password.');
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showSuccess('📧 Password reset email sent!');
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+
+    // Show Error Message
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.remove('text-green-600');
+      errorMessage.classList.add('text-red-600');
+      console.log('❌', message);
+    }
+
+    // Show Success Message
+    function showSuccess(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.remove('text-red-600');
+      errorMessage.classList.add('text-green-600');
+      console.log('✅', message);
+    }
+
+    // Login Form Submit Handler
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMessage.textContent = '';
+
+      const email = loginForm.email.value.trim();
+      const password = loginForm.password.value;
+
+      try {
+        // Sign in with Firebase Authentication
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Get user document from Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        // Check if user document exists
+        if (!userDocSnap.exists()) {
+          await signOut(auth);
+          return showError('Account not found.');
+        }
+
+        const userData = userDocSnap.data();
+
+        // Check if account is approved
+        if (!userData.approved) {
+          await signOut(auth);
+          return showError('Account is not yet approved.');
+        }
+
+        // Generate new session ID
+        const newSessionId = crypto.randomUUID();
+        const existingSessionId = userData.sessionId || '';
+        const sessionActive = userData.sessionActive || false;
+        const localSessionId = localStorage.getItem('sessionId');
+
+        // Check for active session on another device
+        if (sessionActive && existingSessionId && localSessionId && localSessionId !== existingSessionId) {
+          await signOut(auth);
+          return showError('🚫 You are already logged in from another device.');
+        }
+
+        // Update session in Firestore
+        await updateDoc(userDocRef, {
+          sessionActive: true,
+          sessionId: newSessionId,
+          lastSession: serverTimestamp()
+        });
+
+        // Save session ID to localStorage
+        localStorage.setItem('sessionId', newSessionId);
+
+       // Redirect based on user role
+        const role = userData.role?.toLowerCase();
+
+        if (role === 'admin') {
+          window.location.href = 'ADMN Home.html';
+        } else if (role === 'team leader') {
+          window.location.href = 'teamleader-view.html';
+        } else if (role === 'user') {
+          window.location.href = 'Order Monitoring.html';
+        } else if (role === 'requester') {
+          window.location.href = 'tracking.html';
+        } else {
+          await signOut(auth);
+          return showError('❌ Unknown role. Contact admin.');
+        }
+
+      } catch (error) {
+        console.log('Login failed:', error);
+        showError(error.message);
+      }
+    });
+  </script>
+</body>
+</html>

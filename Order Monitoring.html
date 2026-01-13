@@ -1,0 +1,5348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Monitoring Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+ <style>
+
+:root {
+  /* Green + Charcoal Professional Palette */
+  --primary: #059669;
+  --secondary: #047857;
+  --accent: #10b981;
+  --dark: #1F2937;
+  --light: #F3F4F6;
+  --success: #22C55E;
+  --warning: #EAB308;
+  --danger: #EF4444;
+  --delayed: #F97316;
+  --info: #059669;
+  
+  --sidebar-bg: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 10px 40px rgba(5, 150, 105, 0.15);
+  --hover-shadow: 0 15px 50px rgba(4, 120, 87, 0.25);
+  --transition-fast: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --text-main: #1F2937;
+  --text-muted: #6b7280;
+}
+
+
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  background-attachment: fixed;
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+
+.sidebar {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  width: 260px;
+  height: calc(100vh - 56px);
+  background: linear-gradient(180deg, #059669 0%, #047857 100%);
+  backdrop-filter: blur(30px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+  z-index: 1050;
+  overflow-y: auto;
+
+  /* Animation defaults */
+  transition: transform 0.3s ease;
+  transform: translateX(-100%); /* start off-screen */
+}
+
+
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #22C55E; /* green highlight */
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.5px;
+  padding-left: 2px;
+}
+
+
+/* 🚪 Slide-In Sidebar Effect */
+.sidebar.active {
+  transform: translateX(0); /* Slide in */
+}
+
+/* ⬅️ Slide Out */
+.sidebar.slide-out-left {
+  transform: translateX(-100%); /* Slide out to left */
+}
+
+/* Main content shift */
+#mainContent.shifted {
+  margin-left: 270px; /* Matches the sidebar width + padding */
+  transition: margin-left 0.3s ease;
+}
+
+/* 🍎 Sidebar Button */
+.sidebar-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+  white-space: nowrap;
+  margin: 0 0.5rem;
+  width: calc(100% - 1rem);
+}
+
+.sidebar-btn:hover {
+  background: linear-gradient(135deg, #10b981, #059669);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.4);
+}
+
+.sidebar-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 3px 8px rgba(5, 150, 105, 0.3);
+}
+
+.sidebar-btn.active {
+  background: linear-gradient(135deg, #22C55E, #10b981);
+  box-shadow: inset 0 0 0 2px #ffffff33;
+}
+
+/* 🧑‍💻 Optional: Add icons */
+.sidebar-btn::before {
+  font-size: 1.1rem;
+}
+
+
+
+
+/* === Main Content === */
+.main-content {
+  transition: margin-left 0.3s ease;
+  margin-left: 0; /* default when sidebar is hidden */
+}
+
+.main-content.shifted {
+  margin-left: 260px; /* same width as sidebar */
+}
+
+
+.card-summary {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  padding: 1.5rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(5, 150, 105, 0.2);
+  border-left: 5px solid var(--primary);
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+}
+
+.card-summary:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 15px 50px rgba(4, 120, 87, 0.3);
+  border-left-color: #22C55E;
+}
+
+/* === Upload Zone === */
+.upload-zone {
+  border: 2px dashed #c7c7cc;
+  background-color: #f4f4f7;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.upload-zone:hover {
+  border-color: var(--highlight);
+  color: var(--highlight);
+  background-color: #e6f0ff;
+}
+
+/* === Table Wrapper === */ 
+.table-wrapper {
+  max-height: 500px;
+  overflow: auto;
+  background: #003f5c; /* deep teal/navy */
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+  margin-top: 2rem;
+  border: 1px solid #58508d;
+  padding: 0;
+}
+
+/* === Apple-Style Card for Table === */
+.apple-card {
+  background: #003f5c;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  border: 1px solid #58508d;
+  transition: all 0.3s ease;
+}
+
+.apple-card-header {
+  background: linear-gradient(to right, #059669, #047857);
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px 16px 0 0;
+  text-align: left;
+}
+
+.apple-card-body {
+  padding: 0;
+}
+
+/* Scrollable Table Container */
+.apple-table-wrapper {
+  max-height: 600px;
+  overflow: auto;
+  border-radius: 0 0 16px 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* === Table === */
+.apple-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 600px;
+  font-size: 0.95rem;
+  font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #fdfdfd;
+  background: #1F2937;
+}
+
+/* Table Head */
+.apple-table thead th {
+  position: sticky;
+  top: 0;
+  background: #047857;
+  font-weight: 600;
+  color: #ffffff;
+  padding: 0.85rem 1.2rem;
+  border-bottom: 1px solid #22C55E;
+  backdrop-filter: blur(8px);
+  z-index: 10;
+  white-space: nowrap;
+  text-align: left;
+}
+
+/* Sticky First Column */
+.apple-table th:first-child,
+.apple-table td:first-child {
+  position: sticky;
+  left: 0;
+  background: #58508d;
+  z-index: 3;
+}
+
+.apple-table thead th:first-child {
+  z-index: 11;
+}
+
+/* Table Body Rows */
+.apple-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.apple-table tbody tr:hover {
+  background-color: #059669;
+  cursor: pointer;
+}
+
+/* Alternating row colors */
+.apple-table tbody tr:nth-child(even) {
+  background-color: #374151;
+}
+
+/* Table Cells */
+.apple-table td {
+  padding: 0.75rem 1.2rem;
+  border-bottom: 1px solid #047857;
+  color: #ffffff;
+  vertical-align: middle;
+  transition: background 0.3s ease;
+}
+
+/* Scrollbar Styling */
+.apple-table-wrapper::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.apple-table-wrapper::-webkit-scrollbar-thumb {
+  background: #059669;
+  border-radius: 10px;
+}
+
+.apple-table-wrapper::-webkit-scrollbar-track {
+  background: #1F2937;
+}
+
+
+/* === Status Badges === */
+.status-delivered {
+  background-color: #22C55E;
+  color: #fff;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.status-partial {
+  background-color: #EAB308;
+  color: #1F2937;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.status-pending {
+  background-color: #F97316;
+  color: #fff;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+.status-cancelled {
+  background-color: #EF4444;
+  color: #fff;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+}
+
+
+/* Fade Animation */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out both;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Remarks Column Wrapping */
+td.remarks-cell {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+/* Resizable Column Headers */
+.resizable-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.resizable-header::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+}
+
+/* Selected Row Highlight */
+tr.selected-row td {
+  background-color: #1abc9c !important;
+}
+
+tr:hover td {
+  background-color: #3b536a !important;
+}
+
+
+/* === Chart Styling === */
+
+.chart-wrapper {
+  position: relative;
+  height: 240px; /* increase if needed */
+  width: 100%;
+}
+
+
+
+
+#chartCanvas,
+#ordersIssuedChart {
+  width: 100% !important;
+  height: 240px !important;
+}
+
+/* === Side-by-side Charts === */
+.chart-duo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.chart-box {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Divider */
+.chart-divider {
+  width: 1px;
+  background-color: #e0e0e0;
+  margin: 0 10px;
+}
+
+@media (max-width: 992px) {
+  .chart-duo {
+    flex-direction: column;
+  }
+  .chart-divider {
+    display: none;
+  }
+}
+
+/* === Status Tags (One-Line Badge Style) === */
+.status-delivered, .status-cancelled, .status-partial {
+  font-weight: 600;
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-delivered {
+  color: #fff;
+  background-color: #34c759;
+}
+
+.status-cancelled {
+  color: #fff;
+  background-color: #ff3b30;
+}
+
+.status-partial {
+  color: #fff;
+  background-color: #ff9500;
+}
+
+
+
+/* === Fade Animation === */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out both;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.apple-style-btn {
+  background: linear-gradient(to bottom, #f2f2f7, #d1d1d6); /* Apple-style gray gradient */
+  color: #1c1c1e;
+  border: 1px solid #c7c7cc;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: inset 0 1px 0 #ffffff, 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+  backdrop-filter: blur(10px);
+}
+
+.apple-style-btn:hover {
+  background: linear-gradient(to bottom, #e0e0e5, #c7c7cc);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+  transform: translateY(-1px);
+}
+
+.apple-style-btn:active {
+  background: #d1d1d6;
+  transform: scale(0.98);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
+}
+
+.apple-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(to bottom, #f2f2f7, #d1d1d6); /* macOS-style gray gradient */
+  color: #1c1c1e;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1px solid #c7c7cc;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.apple-logout-btn:hover {
+  background: linear-gradient(to bottom, #e5e5ea, #c7c7cc);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.apple-logout-btn:active {
+  background: linear-gradient(to bottom, #d1d1d6, #a1a1aa);
+  transform: translateY(0);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.apple-logout-btn .icon {
+  width: 18px;
+  height: 18px;
+  stroke: #1c1c1e;
+}
+
+
+/* World-Class Apple-Inspired Table Design */
+.apple-style-report-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(6px);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.apple-style-report-table thead th {
+  background: linear-gradient(to bottom, #f9f9fb, #e8e8f0);
+  color: #1c1c1e;
+  font-weight: 600;
+  padding: 16px;
+  text-align: center;
+  border-bottom: 1px solid #d1d1d6;
+  letter-spacing: 0.3px;
+  font-size: 0.96rem;
+}
+
+.apple-style-report-table tbody td {
+  padding: 14px 16px;
+  text-align: center;
+  border-bottom: 1px solid #eaeaf0;
+  color: #2c2c2e;
+  vertical-align: middle;
+  background-color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+
+
+.apple-style-report-table tbody tr {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.apple-style-report-table tbody tr:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  position: relative;
+}
+
+.apple-style-report-table tbody tr:hover td {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* For resizable column headers */
+.resizable-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.resizable-header::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+}
+
+
+
+
+
+#supplierCheckboxes label {
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Custom Modal Size */
+/* Custom Modal Size - UPDATED */
+.custom-modal .modal-dialog {
+  max-width: 98vw;
+  width: auto;
+}
+
+.custom-modal .modal-content {
+  max-height: 85vh; /* Ensure the modal content height is limited */
+  overflow-y: auto; /* Enable scrolling within the modal */
+}
+.custom-modal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+}
+
+.custom-modal .table thead {
+  background: linear-gradient(to right, #059669, #047857);
+  color: #ffffff;
+}
+
+.custom-modal .table thead th {
+  color: #ffffff !important;
+  border-bottom: 2px solid #22C55E;
+}
+
+.custom-modal .table-hover tbody tr:hover {
+  background-color: rgba(5, 150, 105, 0.1);
+}
+
+
+.custom-modal .modal-body {
+  font-size: 1.2rem; /* Increase font size for better readability */
+  max-height: 65vh; /* Prevent excessive modal height */
+}
+
+.custom-modal .table {
+  table-layout: auto; /* Allow the columns to adjust dynamically */
+  width: 100%;
+  word-wrap: break-word; /* Ensure text wraps within the columns */
+}
+
+.custom-modal .table th, .custom-modal .table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.custom-modal .table th:nth-child(1), /* Product column */
+.custom-modal .table td:nth-child(1) {
+  width: 30%; /* Increase width of Product column */
+}
+
+.custom-modal .table th:nth-child(7), /* Remarks column */
+.custom-modal .table td:nth-child(7) {
+  width: 25%; /* Increase width of Remarks column */
+  white-space: normal; /* Allow text to wrap in Remarks column */
+  word-break: break-word; /* Break long words if needed */
+}
+
+/* Adjust other columns to avoid them getting too narrow */
+.custom-modal .table th:nth-child(2), /* Qty Ordered column */
+.custom-modal .table td:nth-child(2),
+.custom-modal .table th:nth-child(3), /* Qty Delivered column */
+.custom-modal .table td:nth-child(3),
+.custom-modal .table th:nth-child(4), /* Qty Cancelled column */
+.custom-modal .table td:nth-child(4),
+.custom-modal .table th:nth-child(5), /* Unit Price column */
+.custom-modal .table td:nth-child(5),
+.custom-modal .table th:nth-child(6), /* Delivery Date column */
+.custom-modal .table td:nth-child(6),
+.custom-modal .table th:nth-child(8), /* Status column */
+.custom-modal .table td:nth-child(8) {
+  width: 10%; /* Assign a fixed width to these columns */
+}
+
+/* Reason column - keep it hidden unless shown */
+.custom-modal .table th:nth-child(9), /* Reason column */
+.custom-modal .table td:nth-child(9) {
+  display: none;
+}
+
+
+
+/* Report Output Modal Specific */
+#reportOutputModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-bottom: 3px solid #22C55E;
+}
+
+#reportOutputModal .btn-outline-success {
+  border-color: #059669;
+  color: #059669;
+  font-weight: 600;
+}
+
+#reportOutputModal .btn-outline-success:hover {
+  background: #059669;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+
+/* RR Report Modal */
+#rrReportModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#rrReportModal .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(5, 150, 105, 0.05);
+}
+
+#rrReportModal .bg-secondary {
+  background: linear-gradient(135deg, #1F2937, #047857) !important;
+}
+
+#rrReportModal .btn-success {
+  background: #22C55E;
+}
+
+#rrReportModal .btn-success:hover {
+  background: #16a34a;
+}
+
+#rrReportModal .btn-secondary {
+  background: #047857;
+}
+
+#rrReportModal .btn-secondary:hover {
+  background: #059669;
+}
+
+/* Supplier Selection Modal */
+#reportModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#reportModal .form-select {
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+}
+
+#reportModal .form-select:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+#reportModal .btn-primary {
+  background: #059669;
+  width: 100%;
+  font-weight: 600;
+}
+
+#reportModal .btn-primary:hover {
+  background: #047857;
+}
+
+/* RR Upload Modal */
+#rrUploadModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#rrUploadModal .form-control:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+
+
+
+
+
+
+
+/* Delivery Performance Modal */
+#deliveryPerformanceModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#deliveryPerformanceModal .text-primary {
+  color: #059669 !important;
+}
+
+#deliveryPerformanceModal .bg-light {
+  background-color: #F3F4F6 !important;
+}
+
+#deliveryPerformanceModal .badge.bg-warning {
+  background-color: #EAB308 !important;
+  color: #1F2937;
+}
+
+#deliveryPerformanceModal .badge.bg-secondary {
+  background-color: #6b7280 !important;
+}
+
+#deliveryPerformanceModal .badge.bg-dark {
+  background-color: #1F2937 !important;
+}
+
+#deliveryPerformanceModal .badge.bg-danger {
+  background-color: #EF4444 !important;
+}
+
+#deliveryPerformanceModal .badge.bg-info {
+  background-color: #059669 !important;
+}
+
+#deliveryPerformanceModal .progress-bar.bg-success {
+  background-color: #22C55E !important;
+}
+
+/* Customize Table Modal */
+#customizeTableModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#customizeTableModal .form-check-input:checked {
+  background-color: #059669;
+  border-color: #059669;
+}
+
+#customizeTableModal .btn-success {
+  background: #22C55E;
+  border: none;
+}
+
+#customizeTableModal .btn-success:hover {
+  background: #16a34a;
+}
+
+/* Customize Chart Modal */
+#customizeChartModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#customizeChartModal .form-select:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+/* Assign Currency Modal */
+#assignCurrencyModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#assignCurrencyModal .form-select {
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+}
+
+#assignCurrencyModal .form-select:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+/* Row Detail Modal */
+#rowDetailModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#rowDetailModal .form-control:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+#rowDetailModal .btn-primary {
+  background: #059669;
+}
+
+#rowDetailModal .btn-primary:hover {
+  background: #047857;
+}
+
+/* Date Range Modal */
+#dateRangeModal .modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+#dateRangeModal .form-control:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+/* Excel Upload Loader Modal */
+#excelUploadLoaderModal .modal-content {
+  background: #ffffff;
+  border: 2px solid #059669;
+}
+
+#excelUploadLoaderModal h5 {
+  color: #1F2937;
+  font-weight: 600;
+}
+
+#excelUploadLoaderModal .progress {
+  background-color: #e5e7eb;
+  border-radius: 10px;
+}
+
+#excelUploadLoaderModal .progress-bar {
+  background: linear-gradient(90deg, #059669 0%, #22C55E 100%);
+}
+
+
+/* === Green + Charcoal Modal Styling === */
+.modal-header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border-bottom: 2px solid #22C55E;
+}
+
+.modal-header .modal-title {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.modal-content {
+  border: 2px solid #059669;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(5, 150, 105, 0.2);
+}
+
+.modal-footer {
+  background: #F3F4F6;
+  border-top: 1px solid #d1d5db;
+}
+
+/* Modal Buttons */
+.modal-footer .btn-primary,
+.modal-body .btn-primary {
+  background: linear-gradient(135deg, #059669, #047857);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.modal-footer .btn-primary:hover,
+.modal-body .btn-primary:hover {
+  background: linear-gradient(135deg, #047857, #059669);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+}
+
+.modal-footer .btn-secondary {
+  background: #6b7280;
+  border: none;
+  color: #ffffff;
+}
+
+.modal-footer .btn-secondary:hover {
+  background: #4b5563;
+}
+
+.modal-footer .btn-success {
+  background: #22C55E;
+  border: none;
+  color: #ffffff;
+}
+
+.modal-footer .btn-success:hover {
+  background: #16a34a;
+}
+
+.modal-footer .btn-danger {
+  background: #EF4444;
+  border: none;
+  color: #ffffff;
+}
+
+.modal-footer .btn-danger:hover {
+  background: #dc2626;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Chart Cards Enhancement */
+.chart-trio .card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.08) !important;
+  transition: all 0.3s ease;
+}
+
+.chart-trio .card:hover {
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.15) !important;
+  transform: translateY(-4px);
+}
+
+.chart-trio .card-body h5 {
+  color: #1F2937 !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* === Apple Footer === */
+.apple-footer {
+  background: linear-gradient(to top, #1F2937, #047857);
+  padding: 40px 20px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #ffffff;
+  border-top: 2px solid #059669;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25);
+  transition: margin-left 0.3s ease;
+  margin-left: 0;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-section {
+  margin-bottom: 20px;
+}
+
+.footer-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  color: #22C55E;
+}
+
+.footer-subtext {
+  font-size: 0.95rem;
+  color: #d1fae5;
+  margin: 4px 0 0;
+}
+
+.footer-links {
+  margin: 20px 0;
+}
+
+.footer-links a {
+  margin: 0 12px;
+  font-size: 0.95rem;
+  color: #10b981;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #22C55E;
+}
+
+.footer-copy {
+  font-size: 0.85rem;
+  color: #d1cbe6; /* light violet-grey */
+}
+
+/* Sidebar shift compatibility */
+.main-content.shifted {
+  margin-left: 260px;
+}
+
+.main-content.shifted ~ .apple-footer {
+  margin-left: 260px;
+}
+
+/* ========================================
+   MODAL HEADER FIX - CRITICAL
+======================================== */
+#updateOrderModal .modal-header {
+  background: var(--gradient-primary) !important;
+  color: var(--white) !important;
+  border-bottom: 3px solid var(--accent) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  min-height: 70px !important;
+  padding: 1.25rem 1.5rem !important;
+}
+
+#updateOrderModal .modal-title {
+  color: var(--white) !important;
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+#updateOrderModal .modal-title #modalOrderNumber {
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+}
+
+#updateOrderModal .btn-close {
+  filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
+}
+
+#updateOrderModal .btn-close:hover {
+  opacity: 0.8 !important;
+}
+
+/* Make sure modal content doesn't overlap header */
+#updateOrderModal .modal-content {
+  border-radius: 16px !important;
+  overflow: visible !important;
+}
+
+#updateOrderModal .modal-body {
+  padding-top: 1.5rem !important;
+}
+
+/* UPDATE ORDER MODAL - FIX TABLE STYLING */
+/* UPDATE ORDER MODAL - FIX TABLE STYLING */
+#updateOrderModal .table {
+  margin-bottom: 0;
+}
+
+#updateOrderModal .table thead {
+  background: linear-gradient(to right, #047857, #059669);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#updateOrderModal .table thead th {
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 0.85rem 1.2rem;
+  border-bottom: 2px solid #22C55E;
+  text-align: center;
+  vertical-align: middle;
+  background: linear-gradient(to right, #047857, #059669);
+}
+
+#updateOrderModal .table-bordered {
+  border: 2px solid #d1d5db;
+}
+
+#updateOrderModal .table-bordered td,
+#updateOrderModal .table-bordered th {
+  border: 1px solid #d1d5db;
+}
+
+#updateOrderModal .table-hover tbody tr:hover {
+  background-color: rgba(5, 150, 105, 0.1);
+  cursor: pointer;
+}
+
+#updateOrderModal .form-control {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+#updateOrderModal .form-control:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+#updateOrderModal .form-select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+#updateOrderModal .form-select:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 0.25rem rgba(5, 150, 105, 0.25);
+}
+
+/* Modal Footer Buttons */
+#updateOrderModal .modal-footer {
+  border-top: 1px solid #e5e7eb;
+  background: #F3F4F6;
+}
+
+#updateOrderModal .btn-primary {
+  background: linear-gradient(135deg, #059669, #047857);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+#updateOrderModal .btn-primary:hover {
+  background: linear-gradient(135deg, #047857, #059669);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+}
+
+#updateOrderModal .btn-secondary {
+  background: #6b7280;
+  border: none;
+}
+
+#updateOrderModal .btn-secondary:hover {
+  background: #4b5563;
+}
+</style>
+
+
+</head>
+<body>
+ 
+  <!-- NAVIGATION -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+   <a class="navbar-brand" href="#">TrackWise</a>
+
+
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item"><a class="nav-link active" href="#">Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" href="Chart project.html">Charts</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" id="toggleSidebar">Update</a></li>
+
+
+      <li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Generate Report
+  </a>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" href="#" id="toFollowUpBtn"> To Follow-Up Report</a></li>
+    <li><a class="dropdown-item" href="#" id="statusReportBtn"> Status Report</a></li>
+    <li><a class="dropdown-item" href="#" id="generateRRReportBtn"> Generate RR Report</a></li>
+    <li><a class="dropdown-item" href="#" id="deliveryperformanceBtn"> Delivery Performance Report</a></li>
+
+  </ul>
+</li>
+
+</li>
+
+    </ul>
+
+<!-- MY ACCOUNT DROPDOWN MENU -->
+<div class="dropdown ms-auto">
+  <button class="btn btn-outline-light dropdown-toggle" type="button" id="myAccountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+    My Account
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="myAccountDropdown">
+    <li>
+      <span class="dropdown-item-text">
+        <strong>Name:</strong><br>
+        <span id="userEmailDisplay">Loading...</span>
+      </span>
+    </li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Logout</a></li>
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+
+
+
+  <!-- SIDEBAR -->
+<div id="functionSidebar" class="sidebar hidden">
+  <h5 class="sidebar-title">Functions</h5>
+  <button id="btnShowUpdate" class="btn btn-primary sidebar-btn w-100 mb-3">UPDATE ORDER DETAILS</button>
+  <button id="btnCustomizeTable" class="btn btn-primary sidebar-btn w-100 mb-3">Customize Table</button>
+  <button id="btnCustomizeCharts" class="btn btn-secondary sidebar-btn w-100 mb-3">Customize Charts</button>
+    </div>
+  
+
+
+  <!-- MAIN CONTENT -->
+  <div id="mainContent" class="main-content">
+
+
+   <!-- DASHBOARD SUMMARY -->
+<div class="container-fluid p-0 mb-4">
+  <div class="row text-center gx-3">
+    <div class="col-md-2 mb-3">
+      <div class="card card-summary">
+        <div class="card-body">
+          <h6>Total Orders</h6>
+          <h4 id="totalOrders">--</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 mb-3">
+      <div class="card card-summary">
+        <div class="card-body">
+          <h6>Delivered</h6>
+          <h4  id="deliveredOrders">--</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 mb-3">
+      <div class="card card-summary">
+        <div class="card-body">
+          <h6>Cancelled</h6>
+          <h4 id="cancelledOrders">--</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 mb-3">
+      <div class="card card-summary">
+        <div class="card-body">
+          <h6>In Progress</h6>
+          <h4  id="partialOrders">--</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2 mb-3">
+      <div class="card card-summary">
+        <div class="card-body">
+          <h6>Partially Delivered</h6>
+          <h4 id="partiallyDeliveredOrders">--</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid p-0 mb-4">
+  <div class="row gx-2 align-items-center">
+
+    <!-- Search -->
+    <div class="col-lg-4 col-md-6 col-sm-12 mb-2 mb-md-0">
+      <input type="text" class="form-control form-control-sm" placeholder="Search Customer/Product..." id="searchInput">
+    </div>
+
+<!-- 0 Filter -->
+<div class="col-lg-2 col-md-3 col-sm-6 mb-2 mb-md-0">
+<select id="statusFilter">
+  <option value="All">All</option>
+  <option value="Delivered">Delivered</option>
+  <option value="Partially Delivered">Partially Delivered</option> <!-- ✅ Fix here -->
+  <option value="Cancelled">Cancelled</option>
+  <option value="In Progress">In Progress</option>
+</select>
+
+</div>
+
+<!-- Month Filter -->
+<div class="col-lg-2 col-md-3 col-sm-6 mb-2 mb-md-0">
+  <select class="form-select form-select-sm" id="monthSort">
+    <option value="">Sort by Month</option>
+    <option value="january">January</option>
+    <option value="february">February</option>
+    <option value="march">March</option>
+    <option value="april">April</option>
+    <option value="may">May</option>
+    <option value="june">June</option>
+    <option value="july">July</option>
+    <option value="august">August</option>
+    <option value="september">September</option>
+    <option value="october">October</option>
+    <option value="november">November</option>
+    <option value="december">December</option>
+  </select>
+</div>
+
+    <!-- Upload + Download -->
+    <div class="col-lg-4 col-md-12 d-flex flex-wrap gap-2 align-items-center justify-content-start mt-2 mt-lg-0">
+      <label class="upload-zone m-0" for="excelFile">
+        📁 Upload Excel
+        <input type="file" id="excelFile" accept=".xlsx, .xls" hidden>
+      </label>
+
+      <button id="btnDownloadExcel" class="apple-style-btn btn-sm">
+        📥 Download Excel
+      </button>
+    </div>
+
+  </div>
+</div>
+
+        
+    
+
+
+
+<!-- 📊 Three Side-by-Side Charts -->
+<div class="container-fluid p-0 mb-4">
+  <div class="d-flex flex-wrap justify-content-between chart-trio">
+
+    <!-- Chart 1: Monthly Sales -->
+    <div class="chart-box me-md-3 mb-3 mb-md-0 flex-grow-1">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body px-4 pt-4 pb-2">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0" style="font-weight: 600; color: #1F2937;"> Monthly Orders Overview</h5>
+            <select id="currencySelector" class="form-select form-select-sm" style="max-width: 150px; border-radius: 12px;">
+              <option value="ALL">All Currencies</option>
+              <option value="PHP">PHP</option>
+              <option value="USD">USD</option>
+              <option value="JPY">JPY</option>
+            </select>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider Line -->
+    <div class="chart-divider d-none d-md-block"></div>
+
+    <!-- Chart 2: Orders Issued -->
+    <div class="chart-box mx-md-3 mb-3 mb-md-0 flex-grow-1">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body px-4 pt-4 pb-2">
+          <h5 class="mb-3" style="font-weight: 600; color: #1d1d1f;"> Total Orders Issued Per Month</h5>
+          <div class="chart-wrapper">
+            <canvas id="ordersIssuedChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Divider Line -->
+    <div class="chart-divider d-none d-md-block"></div>
+
+    <!-- Chart 3: On Time vs Delayed -->
+    <div class="chart-box ms-md-3 flex-grow-1">
+      <div class="card shadow-sm rounded-4 border-0 h-100">
+        <div class="card-body px-4 pt-4 pb-2">
+          <h5 class="mb-3" style="font-weight: 600; color: #1d1d1f;"> On Time vs Delayed Orders</h5>
+          <div class="chart-wrapper">
+            <canvas id="onTimeDelayedChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 🍏 Apple-Style Order Table -->
+<div class="container-fluid p-0 mb-4">
+  <div class="apple-card">
+    <div class="apple-card-header">
+      <h5 class="mb-0"> Order List</h5>
+    </div>
+    <div class="apple-card-body">
+      <div class="apple-table-wrapper">
+        <table class="apple-table">
+          <thead id="orderTableHead" class="sticky-top">
+            <!-- JavaScript will insert dynamic headers -->
+          </thead>
+          <tbody id="orderTableBody">
+            <!-- JavaScript will populate rows here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+      </div>
+
+<!-- UPDATE ORDER MODAL -->
+<div class="modal fade" id="updateOrderModal" tabindex="-1" aria-labelledby="updateOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-scrollable" style="max-width: 98vw; margin: 1rem auto;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateOrderModalLabel">
+          Update Order <span id="modalOrderNumber"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="multiItemContainer" class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty Ordered</th>
+                <th>Qty Delivered</th>
+                <th>Qty Cancelled</th>
+                <th>Unit Price</th>
+                <th>Delivery Date</th>
+                <th>Remarks</th>
+                <th>Status</th>
+                <th class="reasonHeader" style="display:none;">Reason</th>
+              </tr>
+            </thead>
+            <tbody id="multiItemTableBody">
+              <!-- JavaScript will inject rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="saveUpdateBtn" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- CUSTOMIZE TABLE MODAL -->
+  <div class="modal fade" id="customizeTableModal" tabindex="-1" aria-labelledby="customizeTableModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="customizeTableModalLabel">Select Columns to Display</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="columnCheckboxContainer">
+          <!-- Checkbox list rendered by JS -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="confirmColumnsBtn" class="btn btn-success">Apply</button>
+          <button type="button" class="btn btn-secondary" onclick="resetColumns()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+
+
+
+
+<!-- Supplier Selection Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportModalLabel">Select Supplier</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <select id="supplierDropdown" class="form-select mb-3">
+          <option value="" disabled selected>Select a supplier</option>
+          <!-- Populated by JS -->
+        </select>
+        <button class="btn btn-primary w-100" id="generateFollowUpReport">Generate Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- Report Output Modal -->
+<div class="modal fade" id="reportOutputModal" tabindex="-1" aria-labelledby="reportOutputModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-scrollable" style="max-width: 98vw; margin: 1rem auto;">
+    <div class="modal-content rounded-4 shadow-lg border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          📄 Follow-Up Report for <span id="selectedSupplierName"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- ✅ Download Button -->
+        <div class="d-flex justify-content-end mb-3">
+          <button id="downloadFollowUpReport" class="btn btn-outline-success rounded-pill px-4">
+            ⬇️ Download Report
+          </button>
+        </div>
+
+        <!-- ✅ Report Table -->
+        <div class="table-responsive">
+          <table class="table apple-style-report-table" id="followUpReportTable">
+            <thead>
+              <tr>
+                <th><div class="resizable-header">Order Number</div></th>
+                <th><div class="resizable-header">Product</div></th>
+         	<th><div class="resizable-header">Unit Price</div></th>
+                <th><div class="resizable-header">Qty Ordered</div></th>
+                <th><div class="resizable-header">Amount</div></th>
+                <th><div class="resizable-header">Qty Delivered</div></th>
+                <th><div class="resizable-header">Qty Cancelled</div></th>
+                <th><div class="resizable-header">Balance</div></th>
+                <th><div class="resizable-header">Need By Date</div></th>
+                <th><div class="resizable-header">Remarks</div></th>
+              </tr>
+            </thead>
+            <tbody id="reportTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+<!-- 📅 Date Range Modal -->
+<div class="modal fade" id="dateRangeModal" tabindex="-1" aria-labelledby="dateRangeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dateRangeModalLabel">Select Date Range</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label for="startMonth">Start Month:</label>
+        <input type="month" id="startMonth" class="form-control mb-2" />
+
+        <label for="endMonth">End Month:</label>
+        <input type="month" id="endMonth" class="form-control mb-2" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="confirmDateRangeBtn" class="btn btn-primary">Generate Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- RR Upload Modal -->
+<div class="modal fade" id="rrUploadModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">📄 Upload RR Excel File</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="file" id="rrUploadInput" class="form-control" accept=".xlsx, .xls" />
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- RR Report Modal -->
+<div class="modal fade" id="rrReportModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">📦 Receipt Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between gap-2 mb-2">
+          <!-- 🔍 Search Packing Slip -->
+          <input
+            type="text"
+            id="searchPackingSlipInput"
+            class="form-control form-control-sm w-50"
+            placeholder="🔍 Search Packing Slip..."
+          />
+
+
+
+
+
+<!-- 💱 Assign Supplier Currency Button -->
+<div class="mb-3">
+  <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#assignCurrencyModal">
+    💱 Assign Supplier Currency
+  </button>
+</div>
+
+<!-- 📄 Grouped Report Output (by Currency) -->
+<div id="rrFilteredSupplierTablesContainer" class="mt-4">
+  <!-- Dynamically generated tables per currency will appear here -->
+</div>
+
+
+
+
+
+          <!-- 📥 Action Buttons -->
+          <div class="d-flex gap-2">
+            <button id="downloadRRReport" class="btn btn-success btn-sm">
+              ⬇ Download as Excel
+            </button>
+            <button id="clearRRReport" class="btn btn-danger btn-sm">
+              🗑 Clear Data
+            </button>
+          </div>
+        </div>
+
+        <!-- 📊 Report Table -->
+        <table class="table table-striped table-bordered">
+          <thead class="table-light" id="rrReportTableHeadRow">
+            <tr>
+              <th colspan="5" class="text-center bg-secondary text-white fs-6">
+                TRANSMITTAL OF INVOICE WITH RECEIVING REPORT CPS
+              </th>
+            </tr>
+            <tr>
+              <th>Receipt</th>
+              <th>Date</th>
+              <th>Supplier</th>
+              <th>Packing Slip</th>
+              <th>Receiver</th>
+            </tr>
+          </thead>
+          <tbody id="rrReportTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Row Detail Modal for Follow-Up Report -->
+<div class="modal fade" id="rowDetailModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">📋 Edit Row Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+      <form id="rowDetailForm">
+  <div class="mb-2">
+    <label class="form-label">Department</label>
+    <input type="text" class="form-control" id="detailDepartment" required />
+  </div>
+  <div class="mb-2">
+    <label class="form-label">P.O #</label>
+    <input type="text" class="form-control" id="detailPO" required />
+  </div>
+  <div class="mb-2">
+    <label class="form-label">P.R #</label>
+    <input type="text" class="form-control" id="detailPR" required />
+  </div>
+  <div class="mb-2">
+    <label class="form-label">Amount</label>
+    <input type="number" step="0.01" min="0" class="form-control" id="detailAmount" required />
+
+
+  </div>
+  <div class="text-end">
+    <button type="submit" class="btn btn-primary">💾 Save</button>
+  </div>
+</form>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- CUSTOMIZE CHART MODAL -->
+<div class="modal fade" id="customizeChartModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Customize Chart Types</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="chart1Type" class="form-label">Chart 1 (Sales)</label>
+        <select id="chart1Type" class="form-select mb-3">
+          <option value="line">📈 Line</option>
+          <option value="bar">📊 Bar</option>
+          <option value="area">🌊 Area</option>
+        </select>
+
+        <label for="chart2Type" class="form-label">Chart 2 (Orders)</label>
+        <select id="chart2Type" class="form-select mb-3">
+          <option value="bar">📦 Bar</option>
+          <option value="line">📈 Line</option>
+          <option value="area">🌊 Area</option>
+        </select>
+
+        
+      </div>
+      <div class="modal-footer">
+        <button id="confirmChartChoices" class="btn btn-primary">Apply</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- 💱 Assign Currency Modal -->
+<div class="modal fade" id="assignCurrencyModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title">💱 Assign Supplier Currency</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="assignCurrencyContainer"></div>
+      </div>
+      <div class="modal-footer">
+        <!-- ✅ Make sure this button is inside .modal-footer -->
+        <button id="applyCurrencyAssignments" class="btn btn-primary" type="button">
+
+          Apply
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<!-- 📦 Delivery Performance Report Modal -->
+<div class="modal fade" id="deliveryPerformanceModal" tabindex="-1" aria-labelledby="deliveryPerformanceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deliveryPerformanceModalLabel">📦 Delivery Performance Report</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="deliveryPerformanceContent" class="table-responsive">
+          <!-- Report table will be injected here -->
+        </div>
+
+</div>
+</div>
+</div>
+</div> 
+
+
+
+<!-- Excel Upload Loader Modal -->
+<div class="modal fade" id="excelUploadLoaderModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content text-center p-5">
+      <h5 class="mb-4">Uploading Excel File</h5>
+      <div class="progress" style="height: 30px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated fs-6"
+             id="excelUploadProgressBar"
+             role="progressbar"
+             style="width: 0%">0%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<footer class="apple-footer">
+  <div class="footer-container">
+    <div class="footer-section">
+      <p class="footer-title">Order Monitoring</p>
+      <p class="footer-subtext">Built for performance and simplicity.</p>
+    </div>
+    <div class="footer-links">
+      <a href="info-sections.html">Privacy</a>
+      <a href="info-sections.html">Terms</a>
+      <a href="info-sections.html">Support</a>
+      <a href="info-sections.html">About</a>
+    </div>
+    <div class="footer-copy">
+      &copy; <span id="currentYear"></span> TrackWise. All rights reserved. | by Jefferson Molina
+    </div>
+  </div>
+</footer>
+
+
+
+</body>
+
+ 
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+
+
+<script>
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9LCzMuEGIiRQrOVCgH6d-jxxJLZ0QBCk",
+    authDomain: "order-monitoring-purchasing.firebaseapp.com",
+    projectId: "order-monitoring-purchasing",
+    storageBucket: "order-monitoring-purchasing.appspot.com",
+    messagingSenderId: "209378598320",
+    appId: "1:209378598320:web:0c143d69bc329a994d8a75",
+    measurementId: "G-PPNWT4ECV0"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
+  const auth = firebase.auth();
+  const firestore = firebase.firestore();
+
+const btnCustomizeTable = document.getElementById('btnCustomizeTable');
+const customizeTableModal = new bootstrap.Modal(document.getElementById('customizeTableModal'));
+const columnCheckboxContainer = document.getElementById('columnCheckboxContainer');
+const confirmColumnsBtn = document.getElementById('confirmColumnsBtn');
+const updateNavLink = document.getElementById("toggleSidebar");
+
+
+
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (!user) {
+    window.location.href = "Loginindex.html";
+    return;
+  }
+
+  const userRef = firebase.firestore().collection("users").doc(user.uid);
+  const userDoc = await userRef.get();
+  const userData = userDoc.data();
+
+  const localSessionId = localStorage.getItem('sessionId');
+
+  if (!userData.sessionId || userData.sessionId !== localSessionId) {
+    alert("🚫 You’ve been logged out because another login occurred.");
+    await firebase.auth().signOut();
+    localStorage.removeItem('sessionId');
+    window.location.href = "login.html";
+  } else {
+    currentUserId = user.uid; // continue normal flow
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  let inactivityTimer;
+  let fullData = [];
+  let currentEditingOrderId = '';
+  let currentUserId = null; // Use UID for Firestore path
+  let chartInstance = null;
+  let selectedColumns = [];  // Store which columns are selected
+  let draggedColumnIndex = null;
+  let ordersChartInstance = null; // Global chart variable
+  let fullColumnOrder = [];
+  let chart1Type = localStorage.getItem('chart1Type') || 'line';
+  let chart2Type = localStorage.getItem('chart2Type') || 'bar';
+  let globalRRData = [];
+  let currentSearch = "";
+  let currentStatus = "all";
+  let currentMonthSort = "";
+  let lastUpdatedOrderNumber = null;
+  let selectedOrderId = null;
+  let onTimeDelayedChartInstance;
+
+
+
+
+
+
+
+
+
+
+
+ document.getElementById("currentYear").textContent = new Date().getFullYear();
+
+
+const storedSelected = localStorage.getItem('selectedColumns');
+if (storedSelected) {
+  try {
+    selectedColumns = JSON.parse(storedSelected);
+  } catch (e) {
+    selectedColumns = [];
+  }
+}
+
+if (selectedColumns.length > 0) {
+  // Filter fullColumnOrder to only include saved selectedColumns
+  fullColumnOrder = selectedColumns.concat(fullColumnOrder.filter(col => !selectedColumns.includes(col)));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+btnCustomizeTable.addEventListener('click', () => {
+  columnCheckboxContainer.innerHTML = '';
+
+  const allColumns = fullColumnOrder.length > 0
+    ? fullColumnOrder
+    : fullData.length > 0
+      ? Object.keys(fullData[0])
+      : [];
+
+  allColumns.forEach(col => {
+    const isChecked = selectedColumns.includes(col);
+
+    const div = document.createElement('div');
+    div.className = 'form-check';
+
+    div.innerHTML = `
+  <input class="form-check-input" type="checkbox" value="${col}" id="col-${col}" ${isChecked ? 'checked' : ''}>
+  <label class="form-check-label" for="col-${col}">${col}</label>
+`;
+
+
+    columnCheckboxContainer.appendChild(div);
+  });
+
+  customizeTableModal.show(); // open modal manually
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 👇 ADD THIS BLOCK RIGHT AFTER selectedColumns
+const storedOrder = localStorage.getItem('fullColumnOrder');
+if (storedOrder) {
+  try {
+    fullColumnOrder = JSON.parse(storedOrder);
+  } catch (e) {
+    fullColumnOrder = [];
+  }
+}
+
+
+
+confirmColumnsBtn.addEventListener('click', () => {
+  const checkboxes = columnCheckboxContainer.querySelectorAll('input[type=checkbox]');
+  const checkedCols = Array.from(checkboxes)
+                           .filter(cb => cb.checked)
+                           .map(cb => cb.value);
+
+  if (checkedCols.length === 0) {
+    alert('Select at least one column to display.');
+    return;
+  }
+
+  selectedColumns = fullColumnOrder.filter(col => checkedCols.includes(col));
+  localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
+  localStorage.setItem('fullColumnOrder', JSON.stringify(fullColumnOrder));
+
+  customizeTableModal.hide();
+  populateTable(fullData);
+});
+
+
+
+
+
+
+
+
+
+function resetColumns() {
+  selectedColumns = [];
+  fullColumnOrder = [];
+
+  localStorage.removeItem('selectedColumns');
+  localStorage.removeItem('fullColumnOrder');
+
+  customizeTableModal.hide();
+  populateTable(fullData);
+}
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const updateNavLink = document.getElementById("toggleSidebar");
+  const sidebar = document.getElementById("functionSidebar");
+
+  if (updateNavLink && sidebar) {
+    updateNavLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      
+      // Toggle slide animation
+      sidebar.classList.toggle("translate-x-0");      // Slide in
+      sidebar.classList.toggle("translate-x-full");   // Slide out
+      sidebar.classList.toggle("hidden");             // Optional if you want full hide
+    });
+  }
+});
+
+
+
+
+
+ document.getElementById("toggleSidebar").addEventListener("click", () => {
+    const sidebar = document.getElementById("functionSidebar");
+    const mainContent = document.getElementById("mainContent");
+
+    sidebar.classList.toggle("active");
+    mainContent.classList.toggle("shifted");
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    window.location.href = "Loginindex.html";
+    return;
+  }
+
+  try {
+    const userRef = firestore.collection('users').doc(user.uid);
+    const userDoc = await userRef.get();
+    const userData = userDoc.data();
+
+    const localSessionId = localStorage.getItem('sessionId');
+
+    // 🚨 Check for session ID match
+    if (!userData.sessionId || userData.sessionId !== localSessionId) {
+      alert("🚫 You’ve been logged out because another login occurred.");
+      await auth.signOut();
+      localStorage.removeItem('sessionId');
+      window.location.href = "Loginindex.html";
+      return;
+    }
+
+    // 🚫 Restrict access to only users with 'user' role
+    if (!userData.role || userData.role !== 'user') {
+      alert("❌ User has no access to this page.");
+      await auth.signOut();
+      window.location.href = "Loginindex.html";
+      return;
+    }
+
+    // ✅ Session and Role valid, proceed
+    currentUserId = user.uid;
+
+    const nameElem = document.getElementById('userEmailDisplay');
+    if (nameElem) {
+      nameElem.textContent = userData?.fullName || user.email;
+    }
+
+    loadOrdersFromFirestore(currentUserId);
+
+  } catch (err) {
+    console.error("Session validation error:", err);
+    await auth.signOut();
+    localStorage.removeItem('sessionId');
+    window.location.href = "Loginindex.html";
+  }
+});
+
+
+
+
+  document.getElementById('excelFile').addEventListener('change', handleFile, false);
+  document.getElementById('searchInput').addEventListener('input', filterTable);
+  document.getElementById('statusFilter').addEventListener('change', filterTable);
+  document.getElementById('monthSort').addEventListener('change', filterTable);
+
+
+
+ async function loadOrdersFromFirestore(userId) {
+  try {
+    
+    const ordersSnapshot = await firestore
+      .collection('orders')
+      .doc(userId)
+      .collection('userOrders')
+      .get();
+
+    fullData = [];
+    ordersSnapshot.forEach(doc => {
+      const data = doc.data();
+      data["docId"] = doc.id;
+      fullData.push(data);
+    });
+
+   
+
+    populateTable(fullData);
+    updateSummary(fullData);
+    renderCharts(fullData);
+  } catch (error) {
+    console.error("Error loading user orders:", error);
+    fullData = [];
+    populateTable(fullData);
+    updateSummary(fullData);
+  }
+}
+
+
+ function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file || !currentUserId) return;
+
+  showExcelUploadModal();
+  updateExcelUploadProgress(5); // Initial
+
+  const reader = new FileReader();
+
+  reader.onload = async function (e) {
+    try {
+      updateExcelUploadProgress(15);
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+      updateExcelUploadProgress(30);
+      fullData = XLSX.utils.sheet_to_json(worksheet);
+      console.log("Excel parsed data:", fullData);
+
+      if (fullData.length > 0) {
+        fullColumnOrder = Object.keys(fullData[0]);
+        selectedColumns = [...fullColumnOrder];
+
+        localStorage.setItem('fullColumnOrder', JSON.stringify(fullColumnOrder));
+        localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
+      } else {
+        hideExcelUploadModal();
+        alert("❌ Excel is empty or has no valid header row.");
+        return;
+      }
+
+      // Inject required columns
+      const extraColumns = ["Delivery Date", "Lead Time", "Tentative Delivery Date"];
+      extraColumns.forEach(col => {
+        if (!fullColumnOrder.includes(col)) fullColumnOrder.push(col);
+        if (!selectedColumns.includes(col)) selectedColumns.push(col);
+      });
+
+      localStorage.setItem('fullColumnOrder', JSON.stringify(fullColumnOrder));
+      localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
+
+      // Format dates
+      updateExcelUploadProgress(50);
+      const dateFields = ["Order Date", "Need By Date", "Approved Date", "Order Date raw", "Delivery Date", "Tentative Delivery Date"];
+      fullData = fullData.map(row => {
+        dateFields.forEach(field => {
+          if (row[field]) row[field] = formatDate(row[field]);
+        });
+        return row;
+      });
+
+      // Save and reload
+      updateExcelUploadProgress(70);
+      await saveOrdersToFirestore(currentUserId, fullData);
+      updateExcelUploadProgress(90);
+      await loadOrdersFromFirestore(currentUserId);
+
+      updateExcelUploadProgress(100);
+      setTimeout(() => {
+        hideExcelUploadModal();
+        alert("✅ Excel file uploaded and saved successfully!");
+      }, 400);
+
+    } catch (error) {
+      console.error("Error processing Excel:", error);
+      hideExcelUploadModal();
+      alert("❌ Failed to process Excel file. Check console for details.");
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function updateRowDisplay(rowIndex, row) {
+  const tableBody = document.getElementById("ordersTableBody");
+  const parentRow = tableBody?.children[rowIndex];
+  if (!parentRow) return;
+
+  // Tentative Delivery Date
+  const tentativeCell = parentRow.querySelector('[data-field="Tentative Delivery Date"]');
+  if (tentativeCell) {
+    tentativeCell.textContent = formatDateDisplay(row["Tentative Delivery Date"]);
+  }
+
+  // Status
+  const statusCell = parentRow.querySelector('[data-field="Status"]');
+  if (statusCell) {
+    statusCell.textContent = row["Status"];
+  }
+
+  // Reason (optional, if it's also editable)
+  const reasonCell = parentRow.querySelector('[data-field="Reason"]');
+  if (reasonCell) {
+    reasonCell.textContent = row["Reason"] || '';
+  }
+}
+
+
+
+
+
+
+
+
+
+const btnShowUpdate = document.getElementById('btnShowUpdate');
+const updateOrderModal = new bootstrap.Modal(document.getElementById('updateOrderModal'));
+const modalOrderNumber = document.getElementById('modalOrderNumber');
+const saveUpdateBtn = document.getElementById('saveUpdateBtn');
+
+
+
+function computeStatus(row) {
+  const qtyCancelled = Number(row["Quantity Cancelled"]) || 0;
+  const deliveryDate = row["Delivery Date"] ? new Date(row["Delivery Date"]) : null;
+  const tentativeDate = row["Tentative Delivery Date"] ? new Date(row["Tentative Delivery Date"]) : null;
+
+  if (qtyCancelled > 0) return "Cancelled";
+  if (deliveryDate && tentativeDate) return deliveryDate > tentativeDate ? "Delayed" : "On Time";
+  return "Pending";
+}
+
+ 
+
+ async function populateTable(data) {
+  console.log("🚀 Populating table with data:", data);
+
+  const tbody = document.getElementById('orderTableBody');
+  const thead = document.getElementById('orderTableHead');
+
+  if (!tbody || !thead) {
+    console.error("❌ Table elements not found.");
+    return;
+  }
+
+  tbody.innerHTML = '';
+  thead.innerHTML = '';
+
+  if (!Array.isArray(data) || data.length === 0) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = selectedColumns.length || 1;
+    td.className = "text-center py-3 text-muted";
+    td.textContent = "🔍 No matching records found for your filter.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  if (!Array.isArray(selectedColumns) || selectedColumns.length === 0) {
+    const storedSelected = localStorage.getItem('selectedColumns');
+    if (storedSelected) {
+      try {
+        selectedColumns = JSON.parse(storedSelected).filter(col => Object.keys(data[0]).includes(col));
+      } catch {
+        selectedColumns = Object.keys(data[0]);
+      }
+    } else {
+      selectedColumns = Object.keys(data[0]);
+    }
+  }
+
+  if (!selectedColumns.includes("Status")) selectedColumns.push("Status");
+  if (!selectedColumns.includes("Reason")) selectedColumns.push("Reason");
+
+  const columns = selectedColumns;
+
+  const headerRow = document.createElement('tr');
+  columns.forEach(col => {
+    const th = document.createElement('th');
+    th.textContent = col;
+    th.setAttribute('draggable', true);
+    th.dataset.columnName = col;
+
+    const resizer = document.createElement('div');
+    resizer.classList.add('resizer');
+    th.appendChild(resizer);
+
+    if (typeof enableResize === 'function') enableResize(th, resizer);
+
+    th.addEventListener('dragstart', handleDragStart);
+    th.addEventListener('dragover', handleDragOver);
+    th.addEventListener('drop', handleDrop);
+
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+
+  for (const row of data) {
+    const tr = document.createElement('tr');
+
+    // ✅ Add identifiers for later highlighting
+    if (row.docId) tr.setAttribute('data-order-id', row.docId);
+    if (row.Number) tr.setAttribute('data-order-number', row.Number);
+
+    // --------------------
+    // Status Computation
+    // --------------------
+    let status = "Pending";
+    const qtyOrdered = Number(row["Quantity Ordered"]) || 0;
+    const qtyDelivered = Number(row["Quantity Delivered"]) || 0;
+    const qtyCancelled = Number(row["Quantity Cancelled"]) || 0;
+    const deliveryDate = row["Delivery Date"] ? new Date(row["Delivery Date"]) : null;
+    const tentativeDate = row["Tentative Delivery Date"] ? new Date(row["Tentative Delivery Date"]) : null;
+
+    if (qtyCancelled > 0) {
+      status = "Cancelled";
+    } else if (row.Number) {
+      const sameNumberTotalOrdered = data
+        .filter(r => r.Number === row.Number)
+        .reduce((sum, r) => sum + (Number(r["Quantity Ordered"]) || 0), 0);
+
+      const sameNumberTotalDelivered = data
+        .filter(r => r.Number === row.Number)
+        .reduce((sum, r) => sum + (Number(r["Quantity Delivered"]) || 0), 0);
+
+      if (sameNumberTotalDelivered > 0 && sameNumberTotalDelivered < sameNumberTotalOrdered) {
+        status = "Partially Delivered";
+      } else if (qtyDelivered === qtyOrdered && deliveryDate && tentativeDate) {
+        status = deliveryDate > tentativeDate ? "Delayed" : "On Time";
+      } else if (qtyDelivered === qtyOrdered && !deliveryDate) {
+        status = "Pending";
+      } else if (qtyDelivered === 0) {
+        status = "Pending";
+      } else {
+        status = "On Time";
+      }
+    }
+
+    const isDelayedOrCancelled = ["Delayed", "Cancelled"].includes(status);
+
+    if ((status !== row["Status"] || (isDelayedOrCancelled && row["Reason"] !== row["Reason"])) && row.docId && currentUserId) {
+      const updatePayload = { Status: status };
+      if (isDelayedOrCancelled && row["Reason"]) {
+        updatePayload.Reason = row["Reason"];
+      }
+
+      try {
+        await firestore.collection("orders")
+          .doc(currentUserId)
+          .collection("userOrders")
+          .doc(row.docId)
+          .update(updatePayload);
+        console.log(`✅ Firestore updated for ${row.docId}:`, updatePayload);
+      } catch (err) {
+        console.error(`❌ Firestore update failed for ${row.docId}:`, err);
+      }
+    }
+
+    for (const col of columns) {
+      const td = document.createElement('td');
+      let value = row[col] ?? row[col.toLowerCase()] ?? '';
+
+      if (col === "Status") {
+        td.textContent = status;
+        td.classList.add("orderStatus");
+        tr.appendChild(td);
+        continue;
+      }
+
+      if (col === "Reason") {
+        td.classList.add("reason-cell");
+
+        if (isDelayedOrCancelled) {
+          const select = document.createElement("select");
+          select.className = "form-select form-select-sm";
+          select.dataset.field = "Reason";
+
+          const options = [
+            "", "Supplier Delay", "Price Update", "Out of Stock", "Logistics Issue", "Customer Request", "Other"
+          ];
+
+          options.forEach(option => {
+            const opt = document.createElement("option");
+            opt.value = option;
+            opt.textContent = option || "Select reason";
+            if (option === row["Reason"]) opt.selected = true;
+            select.appendChild(opt);
+          });
+
+          select.addEventListener("change", async () => {
+            const newReason = select.value;
+            row["Reason"] = newReason;
+
+            try {
+              await firestore.collection("orders")
+                .doc(currentUserId)
+                .collection("userOrders")
+                .doc(row.docId)
+                .update({ Reason: newReason });
+              console.log(`✅ Reason updated for ${row.docId}:`, newReason);
+            } catch (err) {
+              console.error(`❌ Failed to update Reason for ${row.docId}:`, err);
+            }
+          });
+
+          td.appendChild(select);
+        } else {
+          td.textContent = "—";
+        }
+
+        tr.appendChild(td);
+        continue;
+      }
+
+      if (col.toLowerCase().includes("ordered")) td.classList.add("qtyOrdered");
+      if (col.toLowerCase().includes("delivered")) td.classList.add("qtyDelivered");
+      if (col.toLowerCase().includes("cancelled")) td.classList.add("qtyCancelled");
+
+      if (typeof value === 'object' && value !== null) {
+        value = JSON.stringify(value);
+      }
+
+      if (col.toLowerCase().includes('price') || col.toLowerCase().includes('amount')) {
+        value = Number(value || 0).toFixed(2);
+      }
+
+      if (col === "Lead Time") {
+        const select = document.createElement("select");
+        select.className = "form-select form-select-sm";
+        const options = [
+          "Selection", "1-2 Weeks", "2-3 Weeks", "3-4 Weeks", "4-5 Weeks", "5-6 Weeks", "6-7 Weeks",
+          "7-8 Weeks", "8-9 Weeks", "9-10 Weeks", "11-12 Weeks", "90-120 Days"
+        ];
+
+        options.forEach(optValue => {
+          const opt = document.createElement("option");
+          opt.value = optValue;
+          opt.textContent = optValue;
+          if (optValue === value) opt.selected = true;
+          select.appendChild(opt);
+        });
+
+        select.addEventListener("change", async () => {
+          row["Lead Time"] = select.value;
+          row["Tentative Delivery Date"] = computeTentativeDate(row["Approved Date"], select.value);
+
+          try {
+            await firestore.collection("orders")
+              .doc(currentUserId)
+              .collection("userOrders")
+              .doc(row.docId)
+              .update({
+                "Lead Time": row["Lead Time"],
+                "Tentative Delivery Date": row["Tentative Delivery Date"]
+              });
+            console.log(`✅ Lead Time updated for ${row.docId}`);
+          } catch (err) {
+            console.error("❌ Failed to update Lead Time:", err);
+            alert("Failed to update Lead Time.");
+          }
+
+          setTimeout(() => filterTable(), 50);
+        });
+
+        td.appendChild(select);
+      } else if (col === "Tentative Delivery Date") {
+        td.textContent = formatDateDisplay(row["Tentative Delivery Date"]);
+      } else if (col.toLowerCase() === "delivery date") {
+        td.textContent = row["Delivery Date"] ? formatDateDisplay(row["Delivery Date"]) : "—";
+      } else if (col.toLowerCase().includes("date")) {
+        td.textContent = formatDateDisplay(value);
+      } else {
+        td.textContent = value;
+      }
+
+      tr.appendChild(td);
+    }
+
+    tbody.appendChild(tr);
+  }
+
+  console.log("✅ Table populated with", data.length, "rows.");
+}
+
+
+
+function handleDragStart(e) {
+  draggedColumnName = e.target.dataset.columnName;
+  e.dataTransfer.effectAllowed = "move";
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "move";
+}
+
+
+
+function handleDrop(e) {
+  e.preventDefault();
+  const dropColumnName = e.target.closest('th')?.dataset.columnName;
+  if (!draggedColumnName || !dropColumnName || draggedColumnName === dropColumnName) return;
+
+  const fromIndex = selectedColumns.indexOf(draggedColumnName);
+  const toIndex = selectedColumns.indexOf(dropColumnName);
+
+  if (fromIndex === -1 || toIndex === -1) return;
+
+  const [moved] = selectedColumns.splice(fromIndex, 1);
+  selectedColumns.splice(toIndex, 0, moved);
+
+  // Update fullColumnOrder accordingly
+  fullColumnOrder = Array.from(new Set(selectedColumns.concat(fullColumnOrder)));
+
+  localStorage.setItem('selectedColumns', JSON.stringify(selectedColumns));
+  localStorage.setItem('fullColumnOrder', JSON.stringify(fullColumnOrder));
+
+  // Re-render table
+  populateTable(fullData);
+
+  // 🔑 Recreate filter inputs after rebuild
+  // Apply initial filter on page load
+  filterTable();
+}
+
+
+function enableResize(th, resizer) {
+  let startX, startWidth, columnIndex;
+
+  resizer.addEventListener('mousedown', function (e) {
+    startX = e.pageX;
+    startWidth = th.offsetWidth;
+    columnIndex = th.cellIndex; // find which column this is
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    e.preventDefault();
+  });
+
+  function onMouseMove(e) {
+    const newWidth = startWidth + (e.pageX - startX);
+    th.style.width = newWidth + 'px';
+
+    // apply same width to all cells in this column
+    const table = th.closest("table");
+    if (table) {
+      for (let row of table.rows) {
+        if (row.cells[columnIndex]) {
+          row.cells[columnIndex].style.width = newWidth + 'px';
+        }
+      }
+    }
+  }
+
+  function onMouseUp() {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+// Form fields inside modal
+const updateProduct = document.getElementById('updateProduct');
+const updateQtyOrdered = document.getElementById('updateQtyOrdered');
+const updateQtyDelivered = document.getElementById('updateQtyDelivered');
+const updateQtyCancelled = document.getElementById('updateQtyCancelled');
+const updateUnitPrice = document.getElementById('updateUnitPrice');
+const updateRemarks = document.getElementById('updateRemarks');
+
+let currentOrderId = null;
+let currentItem = null;
+
+btnShowUpdate.addEventListener('click', () => {
+  const orderId = prompt("Enter Order ID to update:");
+  if (!orderId) {
+    alert("No Order ID entered.");
+    return;
+  }
+
+  const matchingItems = fullData.filter(item => item["Number"] && item["Number"].toString() === orderId);
+
+  if (matchingItems.length === 0) {
+    alert("No order found with this ID.");
+    return;
+  }
+
+  currentOrderId = orderId;
+  currentItem = [...matchingItems];
+  modalOrderNumber.textContent = orderId;
+
+  const tableBody = document.getElementById("multiItemTableBody");
+  tableBody.innerHTML = "";
+
+  // Compute aggregated status ONCE for all items with this orderId
+  const aggregatedStatus = computeAggregatedStatus(matchingItems);
+
+  matchingItems.forEach((item, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><input type="text" class="form-control" value="${item["Description"] || ''}" data-field="Description" data-index="${index}" /></td>
+      <td><input type="number" class="form-control" value="${item["Quantity Ordered"] || 0}" data-field="Quantity Ordered" data-index="${index}" /></td>
+      <td><input type="number" class="form-control" value="${item["Quantity Delivered"] || 0}" data-field="Quantity Delivered" data-index="${index}" /></td>
+      <td><input type="number" class="form-control" value="${item["Quantity Cancelled"] || 0}" data-field="Quantity Cancelled" data-index="${index}" /></td>
+      <td><input type="number" class="form-control" value="${item["Unit Price"] || 0}" step="0.01" data-field="Unit Price" data-index="${index}" /></td>
+      <td><input type="date" class="form-control" value="${item["Delivery Date"] ? formatDateForInput(item["Delivery Date"]) : ''}" data-field="Delivery Date" data-index="${index}" /></td>
+      <td><input type="text" class="form-control" value="${item["Remarks"] || ''}" data-field="Remarks" data-index="${index}" /></td>
+      <td class="status-cell">${aggregatedStatus}</td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  updateOrderModal.show();
+});
+
+
+
+
+
+function formatDateForInput(dateStr) {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+  return date.toISOString().split('T')[0];
+}
+
+
+
+
+
+// Helper: compute aggregated status for all items with same order number
+function computeAggregatedStatus(items) {
+  const totalOrdered = items.reduce((sum, i) => sum + (Number(i["Quantity Ordered"]) || 0), 0);
+  const totalDelivered = items.reduce((sum, i) => sum + (Number(i["Quantity Delivered"]) || 0), 0);
+  const totalCancelled = items.reduce((sum, i) => sum + (Number(i["Quantity Cancelled"]) || 0), 0);
+
+  if (totalCancelled > 0 && totalDelivered === 0) return "Cancelled";
+  if (totalDelivered > 0 && totalDelivered < totalOrdered) return "Partially Delivered";
+  if (totalDelivered === totalOrdered && totalOrdered > 0) {
+    const deliveryDates = items
+      .map(i => i["Delivery Date"])
+      .filter(Boolean)
+      .map(d => new Date(d));
+    const tentativeDates = items
+      .map(i => i["Tentative Delivery Date"])
+      .filter(Boolean)
+      .map(d => new Date(d));
+
+    if (deliveryDates.length > 0 && tentativeDates.length > 0) {
+      const earliestDelivery = new Date(Math.min(...deliveryDates));
+      const earliestTentative = new Date(Math.min(...tentativeDates));
+      return earliestDelivery > earliestTentative ? "Delayed" : "On Time";
+    }
+    return "Pending";
+  }
+  if (totalDelivered === 0 && totalOrdered > 0) return "Pending";
+
+  return "Pending";
+}
+
+
+
+
+
+
+
+
+
+saveUpdateBtn.addEventListener('click', async () => {
+  if (!currentUserId) {
+    alert('User not authenticated');
+    return;
+  }
+
+  if (!currentOrderId || !currentItem || !Array.isArray(currentItem)) {
+    alert('No order loaded');
+    return;
+  }
+
+  const inputs = document.querySelectorAll('#multiItemTableBody input, #multiItemTableBody select');
+  let hasError = false;
+
+  // Update currentItem with input values
+  inputs.forEach(input => {
+    const index = parseInt(input.dataset.index);
+    const field = input.dataset.field;
+    let value = input.value;
+
+    if (["Quantity Ordered", "Quantity Delivered", "Quantity Cancelled", "Unit Price"].includes(field)) {
+      value = Number(value) || 0;
+    }
+
+    currentItem[index][field] = value;
+  });
+
+  // Validate totals
+  for (let i = 0; i < currentItem.length; i++) {
+    const item = currentItem[i];
+    const ordered = Number(item["Quantity Ordered"]) || 0;
+    const delivered = Number(item["Quantity Delivered"]) || 0;
+    const cancelled = Number(item["Quantity Cancelled"]) || 0;
+
+    if (delivered + cancelled > ordered) {
+      alert(`❌ Error: For "${item.Product || 'Item ' + (i + 1)}", Delivered (${delivered}) + Cancelled (${cancelled}) exceeds Ordered (${ordered}).`);
+      hasError = true;
+      break;
+    }
+  }
+
+  if (hasError) return;
+
+  saveUpdateBtn.disabled = true;
+  saveUpdateBtn.textContent = "Saving...";
+
+  // Recompute aggregated status for the entire order after edits
+  const aggregatedStatus = computeAggregatedStatus(currentItem);
+
+  const batch = firestore.batch();
+
+  currentItem.forEach((item, index) => {
+    const ordered = Number(item["Quantity Ordered"]) || 0;
+    const delivered = Number(item["Quantity Delivered"]) || 0;
+    const cancelled = Number(item["Quantity Cancelled"]) || 0;
+    item["BALANCE"] = ordered - delivered - cancelled;
+
+    // Reason dropdown
+    const reasonSelect = document.querySelector(`select[data-field="Reason"][data-index="${index}"]`);
+    if (reasonSelect) {
+      item["Reason"] = reasonSelect.value || "";
+    }
+
+    // Use aggregated status for every item (optional: or keep individual status if preferred)
+    item["Status"] = aggregatedStatus;
+
+    const docRef = firestore
+      .collection("orders")
+      .doc(currentUserId)
+      .collection("userOrders")
+      .doc(item["docId"]);
+
+    batch.update(docRef, item);
+  });
+
+  try {
+    await batch.commit();
+    alert("✅ Order updated successfully.");
+
+    currentItem.forEach(updated => {
+      const index = fullData.findIndex(item => item["docId"] === updated["docId"]);
+      if (index !== -1) fullData[index] = { ...updated };
+    });
+
+    filterTable();
+    updateOrderModal.hide();
+
+  } catch (error) {
+    console.error("❌ Update failed:", error);
+    alert("❌ Failed to update. See console for details.");
+  } finally {
+    saveUpdateBtn.disabled = false;
+    saveUpdateBtn.textContent = "Save";
+  }
+});
+
+
+async function saveOrdersToFirestore(userId, ordersArray) {
+  console.log("Saving to Firestore:", ordersArray); // ✅ log this
+
+  const batch = firestore.batch();
+  const ordersCollection = firestore.collection('orders').doc(userId).collection('userOrders');
+
+  // Optional: delete existing first (up to 500 only)
+  const existingOrders = await ordersCollection.get();
+  existingOrders.forEach(doc => batch.delete(doc.ref));
+
+  ordersArray.forEach((order, index) => {
+    const uniqueId = `${order.Number || 'order'}-${index}`;
+    order["docId"] = uniqueId;
+    const docRef = ordersCollection.doc(uniqueId);
+    batch.set(docRef, order);
+  });
+
+  await batch.commit();
+}
+
+
+
+
+function determineStatus(row) {
+  const qtyCancelled = Number(row["Quantity Cancelled"]) || 0;
+  const qtyOrdered = Number(row["Quantity Ordered"]) || 0;
+  const qtyDelivered = Number(row["Quantity Delivered"]) || 0;
+  const deliveryDate = row["Delivery Date"] ? new Date(row["Delivery Date"]) : null;
+  const tentativeDate = row["Tentative Delivery Date"] ? new Date(row["Tentative Delivery Date"]) : null;
+
+  if (qtyCancelled > 0) {
+    return "Cancelled";
+  } else if (qtyDelivered === 0 && qtyOrdered > 0) {
+    return "Pending";
+  } else if (qtyDelivered < qtyOrdered) {
+    return "Partially Delivered";
+  } else if (qtyDelivered === qtyOrdered && deliveryDate && tentativeDate) {
+    return deliveryDate > tentativeDate ? "Delayed" : "On Time";
+  } else {
+    return "Pending";
+  }
+}
+
+
+
+
+
+function getStatusClass(status) {
+  const s = status.toLowerCase();
+  return s === 'delivered' ? 'status-delivered' :
+         s === 'cancelled' ? 'status-cancelled' :
+         s === 'partial' ? 'status-partial' :
+         s === 'in progress' ? 'status-inprogress' :
+         'status-pending';
+}
+
+
+
+
+
+
+
+  function formatDate(value) {
+    if (!value) return '';
+    let d;
+
+    if (typeof value === 'string') {
+      const match = value.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      d = match ? new Date(match[3], match[1] - 1, match[2]) : new Date(value);
+    } else if (!isNaN(value)) {
+      d = new Date(Date.UTC(1899, 11, 30) + value * 86400000);
+    }
+
+    return d instanceof Date && !isNaN(d.getTime()) ? 
+      d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+  }
+
+
+
+
+
+
+
+
+
+
+  function updateSummary(data) {
+  const groupedOrders = {};
+
+  data.forEach(row => {
+    const orderNumber = row["Number"];
+    if (!orderNumber) return;
+
+    if (!groupedOrders[orderNumber]) {
+      groupedOrders[orderNumber] = [];
+    }
+
+    groupedOrders[orderNumber].push({
+      ordered: Number(row["Quantity Ordered"] || 0),
+      delivered: Number(row["Quantity Delivered"] || 0),
+      cancelled: Number(row["Quantity Cancelled"] || 0)
+    });
+  });
+
+  let delivered = 0, partiallyDelivered = 0, inProgress = 0, cancelled = 0;
+
+  for (const orderNumber in groupedOrders) {
+    const items = groupedOrders[orderNumber];
+
+    let allDelivered = true;
+    let anyDelivered = false;
+    let allZeroDelivered = true;
+    let hasCancelled = false;
+
+    items.forEach(item => {
+      if (item.cancelled > 0) hasCancelled = true;
+      if (item.delivered !== item.ordered) allDelivered = false;
+      if (item.delivered > 0) anyDelivered = true;
+      if (item.delivered > 0) allZeroDelivered = false;
+    });
+
+    if (hasCancelled) {
+      cancelled++;
+    } else if (allDelivered) {
+      delivered++;
+    } else if (anyDelivered) {
+      partiallyDelivered++;
+    } else if (allZeroDelivered) {
+      inProgress++;
+    }
+  }
+
+  const totalOrders = Object.keys(groupedOrders).length;
+
+  document.getElementById('totalOrders').textContent = totalOrders;
+  document.getElementById('deliveredOrders').textContent = delivered;
+  document.getElementById('cancelledOrders').textContent = cancelled;
+  document.getElementById('partialOrders').textContent = inProgress;
+
+  const partialElem = document.getElementById('partiallyDeliveredOrders');
+  if (partialElem) partialElem.textContent = partiallyDelivered;
+}
+
+function generateGroupedStatuses(data) {
+  const statusMap = {};
+
+  const grouped = data.reduce((acc, row) => {
+    const number = row["Number"];
+    if (!acc[number]) acc[number] = [];
+    acc[number].push(row);
+    return acc;
+  }, {});
+
+  for (const number in grouped) {
+    const rows = grouped[number];
+    let allDelivered = true;
+    let anyDelivered = false;
+    let anyCancelled = false;
+
+    for (const row of rows) {
+      const qtyOrdered = Number(row["Quantity Ordered"]) || 0;
+      const qtyDelivered = Number(row["Quantity Delivered"]) || 0;
+      const qtyCancelled = Number(row["Quantity Cancelled"]) || 0;
+
+      if (qtyDelivered > 0) anyDelivered = true;
+      if (qtyCancelled > 0) anyCancelled = true;
+      if (qtyDelivered < qtyOrdered) allDelivered = false;
+    }
+
+    if (allDelivered && anyDelivered) {
+      statusMap[number] = "Delivered";
+    } else if (anyDelivered) {
+      statusMap[number] = "Partially Delivered";
+    } else if (anyCancelled) {
+      statusMap[number] = "Cancelled";
+    } else {
+      statusMap[number] = "In Progress";
+    }
+  }
+
+  return statusMap;
+}
+
+function filterTable() {
+  const statusMap = generateGroupedStatuses(fullData);
+
+  const filtered = fullData.filter(row => {
+    // --- Normalize searchable fields ---
+    const customerRaw = row["Customer"] ?? row["Supplier"] ?? '';
+    const productRaw = row["Product"] ?? row["Description"] ?? '';
+    const customer = String(customerRaw).toLowerCase();
+    const product = String(productRaw).toLowerCase();
+
+    const orderNumber = row["Number"];
+    const status = statusMap[orderNumber]?.toLowerCase() || '';
+
+    // --- Month filter ---
+    let matchesMonth = true;
+    if (currentMonthSort && row["Order Date"]) {
+      const rawDate = row["Order Date"];
+      const parsedDate = new Date(rawDate);
+
+      if (!isNaN(parsedDate)) {
+        const monthName = parsedDate.toLocaleString("default", { month: "long" }).toLowerCase();
+        matchesMonth = monthName === currentMonthSort.toLowerCase();
+      } else {
+        matchesMonth = false; // exclude invalid dates
+      }
+    }
+
+    // --- Search filter ---
+    const matchesSearch =
+      !currentSearch ||
+      customer.includes(currentSearch) ||
+      product.includes(currentSearch);
+
+    // --- Status filter ---
+    const matchesStatus =
+      !currentStatus ||
+      currentStatus.toLowerCase() === "all" ||
+      status === currentStatus.toLowerCase();
+
+    return matchesSearch && matchesStatus && matchesMonth;
+  });
+
+  // --- Update UI ---
+  populateTable(filtered);
+  updateSummary(filtered);
+
+  // --- Highlight last updated row ---
+  if (lastUpdatedOrderNumber) {
+    const row = document.querySelector(`[data-order-number="${lastUpdatedOrderNumber}"]`);
+    if (row) {
+      row.classList.add("table-success");
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => row.classList.remove("table-success"), 2000);
+    }
+    lastUpdatedOrderNumber = null;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("searchInput");
+  const statusFilter = document.getElementById("statusFilter")
+  const monthSort = document.getElementById("monthSort");
+
+  // Initialize values from inputs if they have defaults
+  currentSearch = searchInput.value.trim().toLowerCase();
+  currentStatus = statusFilter.value;
+  currentMonthSort = monthSort.value;
+
+  searchInput.addEventListener("input", (e) => {
+    currentSearch = e.target.value.trim().toLowerCase();
+    filterTable();
+  });
+
+  statusFilter.addEventListener("change", (e) => {
+    currentStatus = e.target.value;
+    filterTable();
+  });
+
+  monthSort.addEventListener("change", (e) => {
+    currentMonthSort = e.target.value;
+    filterTable();
+  });
+
+  // Apply initial filter on page load
+  filterTable();
+});
+
+
+
+
+
+
+  function submitRemarks() {
+    const newText = document.getElementById('newRemarks').value.trim();
+    const orderId = currentEditingOrderId;
+
+    if (!orderId || !currentUserId) return;
+
+    firestore.collection('orders').doc(currentUserId).collection('userOrders').doc(orderId)
+      .update({ REMARKS: newText })
+
+      .then(() => {
+  alert(`✅ Order updated successfully. Status: ${newStatus}`);
+  currentItem.forEach(updated => {
+    const index = fullData.findIndex(item => item["docId"] === updated["docId"]);
+    if (index !== -1) fullData[index] = { ...updated };
+  });
+
+  filterTable(); // ← Use this instead
+  updateOrderModal.hide();
+})
+
+
+      .catch(err => console.error('Error updating remarks:', err));
+
+    const modalEl = document.getElementById('editModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
+  }
+function renderCharts(data) {
+  const currency = document.getElementById("currencySelector")?.value || "ALL";
+
+  const monthlySales = {};
+  const uniqueOrdersPerMonth = {};
+  const uniqueOrderNumbers = new Set();
+
+  // Build monthlyStatus using unique orders
+  const monthlyStatus = {}; // { "Aug 2025": { onTime: 0, delayed: 0, ... } }
+  const ordersMap = {}; // key: Number, value: { monthYear, status }
+
+  data.forEach(order => {
+    const orderDateStr = order["Order Date"];
+    const orderCurrency = order["Currency"] || "PHP";
+    const unitPrice = parseFloat(order["Unit Price"] || 0);
+    const qty = parseFloat(order["Quantity Ordered"] || 0);
+    const deliveryDate = new Date(order["Delivery Date"]);
+    const tentativeDate = new Date(order["Tentative Delivery Date"]);
+    const orderNumber = order["Number"];
+    const orderStatus = order["Status"] || "On Time"; // fallback
+
+    if (!orderDateStr || isNaN(unitPrice) || isNaN(qty)) return;
+
+    const date = new Date(orderDateStr);
+    const monthYear = date.toLocaleString("default", { month: "short", year: "numeric" });
+
+    // Revenue (filtered by currency)
+    if (currency === "ALL" || currency === orderCurrency) {
+      monthlySales[monthYear] = (monthlySales[monthYear] || 0) + qty * unitPrice;
+    }
+
+    // Unique order count
+    if (orderNumber && !uniqueOrderNumbers.has(orderNumber)) {
+      uniqueOrderNumbers.add(orderNumber);
+      uniqueOrdersPerMonth[monthYear] = (uniqueOrdersPerMonth[monthYear] || 0) + 1;
+    }
+
+    // Track unique order status
+    if (orderNumber) {
+      const isDelayed = !isNaN(deliveryDate) && !isNaN(tentativeDate) ? deliveryDate > tentativeDate : false;
+      let status = orderStatus;
+      if (isDelayed) status = "Delayed";
+      ordersMap[orderNumber] = { monthYear, status };
+    }
+  });
+
+  // Aggregate monthlyStatus based on unique orders
+  Object.values(ordersMap).forEach(({ monthYear, status }) => {
+    if (!monthlyStatus[monthYear]) monthlyStatus[monthYear] = {
+      onTime: 0,
+      delayed: 0,
+      pending: 0,
+      partiallyDelivered: 0,
+      cancelled: 0
+    };
+
+    switch(status) {
+      case "Delayed": monthlyStatus[monthYear].delayed++; break;
+      case "Pending": monthlyStatus[monthYear].pending++; break;
+      case "Partially Delivered": monthlyStatus[monthYear].partiallyDelivered++; break;
+      case "Cancelled": monthlyStatus[monthYear].cancelled++; break;
+      default: monthlyStatus[monthYear].onTime++;
+    }
+  });
+
+  const labels = [...new Set([
+    ...Object.keys(monthlySales),
+    ...Object.keys(uniqueOrdersPerMonth),
+    ...Object.keys(monthlyStatus)
+  ])].sort((a, b) => new Date(a) - new Date(b));
+
+// 💸 Chart 1: Revenue (Apple theme colors)
+const salesData = labels.map(month => monthlySales[month] || 0);
+const salesCtx = document.getElementById("chartCanvas").getContext("2d");
+if (chartInstance) chartInstance.destroy();
+
+const isAreaChart = chart1Type === 'area';
+const actualChartType = isAreaChart ? 'line' : chart1Type;
+
+// Gradient using Apple-style blue & purple
+// Gradient using Green + Charcoal theme
+const salesGradient = salesCtx.createLinearGradient(0, 0, 0, 400);
+salesGradient.addColorStop(0, "rgba(5,150,105,0.4)");   // operational green
+salesGradient.addColorStop(1, "rgba(16,185,129,0.05)"); // soft green
+
+chartInstance = new Chart(salesCtx, {
+  type: actualChartType,
+  data: {
+    labels,
+    datasets: [{
+      label: `Monthly Sales (${currency})`,
+      data: salesData,
+      borderColor: "#059669", // operational green line
+      backgroundColor: isAreaChart ? salesGradient : "#059669",
+      fill: isAreaChart,
+      tension: 0.4,
+      borderWidth: 2.5,
+      pointRadius: 4,
+      pointBackgroundColor: "#ffffff",
+      pointBorderColor: "#059669",
+      pointHoverRadius: 6,
+      pointHoverBorderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          usePointStyle: true,
+          pointStyle: "rect", // square box
+          boxWidth: 12,
+          boxHeight: 12,
+          padding: 15
+        }
+      },
+      tooltip: {
+        backgroundColor: "rgba(31,41,55,0.95)",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        borderColor: "#059669",
+        borderWidth: 2,
+        callbacks: {
+          label: ctx => `${currency} ${ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2})}`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: "rgba(0,0,0,0.05)" },
+        ticks: { color: "#333" }
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: "rgba(0,0,0,0.05)" },
+        ticks: {
+          color: "#333",
+          callback: val => `${currency} ${val.toLocaleString()}`
+        }
+      }
+    }
+  }
+});
+
+ // 🧾 Chart 2: Orders Issued (Unique Order Numbers)
+const ordersData = labels.map(month => uniqueOrdersPerMonth[month] || 0);
+const ordersCtx = document.getElementById("ordersIssuedChart").getContext("2d");
+if (ordersChartInstance) ordersChartInstance.destroy();
+
+const isOrdersArea = chart2Type === 'area';
+const actualOrdersChartType = isOrdersArea ? 'line' : chart2Type;
+
+
+// 🎨 Green + Charcoal Theme
+const themeColors = {
+  primary: "#059669",   // Operational green
+  fill: "rgba(5, 150, 105, 0.25)", // translucent green fill
+  text: "#1F2937",      // charcoal text
+  datalabel: "#fff"     // inside-point labels
+};
+
+ordersChartInstance = new Chart(ordersCtx, {
+  type: actualOrdersChartType,
+  data: {
+    labels,
+    datasets: [{
+      label: "Orders Issued",
+      data: ordersData,
+      backgroundColor: isOrdersArea ? themeColors.fill : themeColors.primary,
+      borderColor: themeColors.primary,
+      fill: isOrdersArea,
+      tension: 0.4,
+      borderWidth: 2.5,
+      pointRadius: 4,
+      borderRadius: isOrdersArea ? 0 : 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: {
+      padding: { top: 20, bottom: 40, left: 10, right: 10 }
+    },
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'rect',
+          boxWidth: 12,
+          boxHeight: 12,
+          padding: 15,
+          color: themeColors.text
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.parsed.y} Orders`
+        }
+      },
+      datalabels: {
+        anchor: 'end',
+        align: 'top',
+        color: themeColors.text,
+        font: { weight: 'bold', size: 11 },
+        clamp: true,
+        clip: false,
+        formatter: value => value
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+          padding: 8,
+          color: themeColors.text
+        },
+        grid: { color: "#e0e0e0" }
+      },
+      x: {
+        ticks: {
+          autoSkip: false,
+          maxRotation: 0,
+          minRotation: 0,
+          padding: 10,
+          color: themeColors.text
+        },
+        grid: { color: "#f5f5f5" }
+      }
+    }
+  },
+  plugins: [ChartDataLabels]
+});
+
+// 🧾 Chart 3: Smooth adjustment with non-linear scaling
+function adjustStackData(values, minVisualPercent = 8, curve = 0.6) {
+  const total = values.reduce((a, b) => a + b, 0);
+  if (total === 0) return values.map(() => 0);
+
+  // Convert raw values to percentages
+  let percentages = values.map(v => (v / total) * 100);
+
+  // Apply non-linear scaling:
+  // - Small values get "stretched" upwards
+  // - Large values slightly compressed
+  // - Keeps smoother proportionality
+  let adjusted = percentages.map(p => {
+    if (p === 0) return 0;
+    return minVisualPercent + Math.pow(p, curve); 
+  });
+
+  // Normalize to 100% total
+  const sum = adjusted.reduce((a, b) => a + b, 0);
+  adjusted = adjusted.map(p => (p / sum) * 100);
+
+  return adjusted;
+}
+
+// === Raw counts ===
+const onTimeCounts = labels.map(month => monthlyStatus[month]?.onTime || 0);
+const delayedCounts = labels.map(month => monthlyStatus[month]?.delayed || 0);
+const pendingCounts = labels.map(month => monthlyStatus[month]?.pending || 0);
+const partiallyDeliveredCounts = labels.map(month => monthlyStatus[month]?.partiallyDelivered || 0);
+const cancelledCounts = labels.map(month => monthlyStatus[month]?.cancelled || 0);
+
+const rawValues = [
+  onTimeCounts,
+  delayedCounts,
+  pendingCounts,
+  partiallyDeliveredCounts,
+  cancelledCounts
+];
+
+// === Adjusted stacks (visual only) ===
+const adjustedStacks = labels.map((_, i) => {
+  const monthValues = rawValues.map(arr => arr[i]);
+  return adjustStackData(monthValues, 8, 0.6); // min 8%, smooth curve
+});
+
+// === True % for labels/tooltips ===
+const totalCounts = labels.map((_, i) =>
+  onTimeCounts[i] +
+  delayedCounts[i] +
+  pendingCounts[i] +
+  partiallyDeliveredCounts[i] +
+  cancelledCounts[i]
+);
+
+const onTimePercent = totalCounts.map((t, i) => (t ? (onTimeCounts[i] / t) * 100 : 0));
+const delayedPercent = totalCounts.map((t, i) => (t ? (delayedCounts[i] / t) * 100 : 0));
+const pendingPercent = totalCounts.map((t, i) => (t ? (pendingCounts[i] / t) * 100 : 0));
+const partiallyDeliveredPercent = totalCounts.map((t, i) => (t ? (partiallyDeliveredCounts[i] / t) * 100 : 0));
+const cancelledPercent = totalCounts.map((t, i) => (t ? (cancelledCounts[i] / t) * 100 : 0));
+
+const baseColors = {
+  onTime: "#22C55E",           // Delivered - Green
+  delayed: "#F97316",          // Delayed - Orange
+  pending: "#EAB308",          // Pending - Yellow
+  partiallyDelivered: "#10b981", // Partially Delivered - Light Green
+  cancelled: "#EF4444"         // Cancelled - Red
+};
+
+const datasets = [
+  { key: "onTime", perc: onTimePercent, counts: onTimeCounts },
+  { key: "delayed", perc: delayedPercent, counts: delayedCounts },
+  { key: "pending", perc: pendingPercent, counts: pendingCounts },
+  { key: "partiallyDelivered", perc: partiallyDeliveredPercent, counts: partiallyDeliveredCounts },
+  { key: "cancelled", perc: cancelledPercent, counts: cancelledCounts }
+].map((ds, idx) => ({
+  label: ds.key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+  data: adjustedStacks.map(stack => stack[idx]), // visually adjusted %
+  backgroundColor: baseColors[ds.key],
+  rawCounts: ds.counts,
+  truePercent: ds.perc
+}));
+
+const yAxisMax = 100;
+
+const onTimeCtx = document.getElementById("onTimeDelayedChart")?.getContext("2d");
+if (onTimeCtx) {
+  if (window.onTimeDelayedChartInstance) window.onTimeDelayedChartInstance.destroy();
+
+  window.onTimeDelayedChartInstance = new Chart(onTimeCtx, {
+    type: "bar",
+    data: {
+      labels: labels.map(l => l.replace(" ", "\n")),
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const counts = datasets[ctx.datasetIndex].rawCounts;
+              const percent = datasets[ctx.datasetIndex].truePercent[ctx.dataIndex];
+              if (counts[ctx.dataIndex] === 0) return '';
+              return `${ctx.dataset.label}: ${percent.toFixed(1)}% (${counts[ctx.dataIndex]})`;
+            }
+          }
+        },
+        datalabels: {
+          font: { weight: 'bold', size: 11 },
+          color: '#fff',
+          align: 'center',
+          anchor: 'center',
+          display: ctx => ctx.dataset.truePercent[ctx.dataIndex] > 0,
+          formatter: (value, ctx) => {
+            const counts = datasets[ctx.datasetIndex].rawCounts;
+            const percent = datasets[ctx.datasetIndex].truePercent[ctx.dataIndex];
+            return `${percent.toFixed(1)}% (${counts[ctx.dataIndex]})`;
+          }
+        },
+        legend: {
+          position: 'bottom',
+          labels: {
+            usePointStyle: true,   // use a point style instead of default
+            pointStyle: 'rect',    // square box
+            boxWidth: 12,
+            boxHeight: 12,
+            padding: 15
+          }
+        },
+        title: { display: true, text: 'Monthly Order Status (%)' }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          title: { display: true, text: 'Month' },
+          ticks: { padding: 10, autoSkip: false, maxRotation: 0, minRotation: 0, color: '#1F2937' }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          max: yAxisMax,
+          ticks: { callback: val => `${val}%`, color: '#1F2937' },
+          title: { display: true, text: 'Percentage', color: '#1F2937' },
+          grid: { color: '#d1d5db' }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+}
+
+
+
+
+// 🎛️ Customize Chart Modal Functionality
+document.getElementById('btnCustomizeCharts').addEventListener('click', () => {
+  // Load stored values or set default
+  const storedChart1 = localStorage.getItem('chart1Type') || 'line';
+  const storedChart2 = localStorage.getItem('chart2Type') || 'bar';
+
+  document.getElementById('chart1Type').value = storedChart1;
+  document.getElementById('chart2Type').value = storedChart2;
+
+  const modal = new bootstrap.Modal(document.getElementById('customizeChartModal'));
+  modal.show();
+});
+
+document.getElementById('confirmChartChoices').addEventListener('click', () => {
+chart1Type = document.getElementById('chart1Type').value;
+chart2Type = document.getElementById('chart2Type').value;
+
+localStorage.setItem('chart1Type', chart1Type);
+localStorage.setItem('chart2Type', chart2Type);
+
+renderCharts(fullData);
+
+
+  const modalEl = document.getElementById('customizeChartModal');
+  const modal = bootstrap.Modal.getInstance(modalEl);
+  modal.hide();
+});
+
+
+
+
+
+
+
+
+
+
+document.getElementById("currencySelector").addEventListener("change", () => {
+  renderCharts(fullData);
+});
+
+
+
+document.getElementById("btnDownloadExcel").addEventListener("click", () => {
+  const tableBody = document.getElementById("orderTableBody");
+  if (!tableBody) return;
+
+  const rows = Array.from(tableBody.querySelectorAll("tr"));
+  if (rows.length === 0) {
+    alert("No rows available to export.");
+    return;
+  }
+
+  const exportData = rows.map(row => {
+    const cells = row.querySelectorAll("td");
+    const rowData = {};
+
+    selectedColumns.forEach((col, index) => {
+      const cell = cells[index];
+      if (!cell) {
+        rowData[col] = "";
+      } else {
+        const select = cell.querySelector("select");
+        if (select) {
+          rowData[col] = select.value;
+        } else {
+          rowData[col] = cell.textContent.trim();
+        }
+      }
+    });
+
+    return rowData;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "FilteredOrders");
+
+  const fileName = `Filtered_Orders_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  XLSX.writeFile(workbook, fileName);
+});
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  // STEP 1: When user clicks "📄 To Follow-Up Report"
+document.getElementById("toFollowUpBtn").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    // Populate Supplier Dropdown - ONLY suppliers with Partially Delivered or Pending orders
+    const dropdown = document.getElementById("supplierDropdown");
+    dropdown.innerHTML = '<option value="" disabled selected>Select a supplier</option>';
+
+    // Filter for suppliers with in-progress orders
+    const inProgressSuppliers = [...new Set(
+      fullData
+        .filter(order => {
+          const delivered = Number(order["Quantity Delivered"] || 0);
+          const ordered = Number(order["Quantity Ordered"] || 0);
+          const cancelled = Number(order["Quantity Cancelled"] || 0);
+          return cancelled === 0 && delivered < ordered; // Partially Delivered or Pending
+        })
+        .map(item => item["Supplier"])
+        .filter(Boolean)
+    )];
+
+    if (inProgressSuppliers.length === 0) {
+      alert("No suppliers have orders in progress.");
+      return;
+    }
+
+    inProgressSuppliers.forEach(supplier => {
+      const option = document.createElement("option");
+      option.value = supplier;
+      option.textContent = supplier;
+      dropdown.appendChild(option);
+    });
+
+
+    // Show Supplier Selection Modal
+    const supplierModal = new bootstrap.Modal(document.getElementById("reportModal"));
+    supplierModal.show();
+  });
+
+  // STEP 2: When user clicks "Generate Report" button in the Supplier Modal
+  document.getElementById("generateFollowUpReport").addEventListener("click", () => {
+    const selectedSupplier = document.getElementById("supplierDropdown").value;
+    if (!selectedSupplier) return;
+
+    const reportTableBody = document.getElementById("reportTableBody");
+    const supplierNameDisplay = document.getElementById("selectedSupplierName");
+
+    const inProgressOrders = fullData.filter(order => {
+      const delivered = Number(order["Quantity Delivered"] || 0);
+      const ordered = Number(order["Quantity Ordered"] || 0);
+      const cancelled = Number(order["Quantity Cancelled"] || 0);
+      const isInProgress = cancelled === 0 && delivered < ordered;
+      return order["Supplier"] === selectedSupplier && isInProgress;
+    });
+
+    supplierNameDisplay.textContent = selectedSupplier;
+    reportTableBody.innerHTML = '';
+
+ inProgressOrders.forEach(order => {
+  const balance = (order["Quantity Ordered"] || 0) - (order["Quantity Delivered"] || 0);
+const remarks = order["Remarks"] || '';
+const row = document.createElement("tr");
+row.innerHTML = `
+  <td>${order["Number"] || ''}</td>
+  <td>${order["Product"] || order["Description"] || ''}</td>
+  <td>${order["Unit Price"] || 0}</td>
+  <td>${order["Quantity Ordered"] || 0}</td>
+  <td>${order["Amount"] || 0}</td>
+  <td>${order["Quantity Delivered"] || 0}</td>
+  <td>${order["Quantity Cancelled"] || 0}</td>
+  <td>${balance}</td>
+  <td>${order["Need By Date"] || ''}</td>
+  <td class="remarks-cell" data-full-text="${remarks.replace(/"/g, '&quot;')}">${remarks}</td>
+`;
+  reportTableBody.appendChild(row);
+});
+
+
+
+
+
+
+function makeTableResizable(tableSelector) {
+  const table = document.querySelector(tableSelector);
+  const thElements = table.querySelectorAll('th');
+
+  thElements.forEach((th, index) => {
+    // 🔁 Remove old resizer if it exists
+    const oldResizer = th.querySelector('.column-resizer');
+    if (oldResizer) oldResizer.remove();
+
+    const resizer = document.createElement('div');
+    resizer.classList.add('column-resizer');
+    resizer.style.width = '5px';
+    resizer.style.height = '100%';
+    resizer.style.position = 'absolute';
+    resizer.style.right = '0';
+    resizer.style.top = '0';
+    resizer.style.cursor = 'col-resize';
+    resizer.style.userSelect = 'none';
+    resizer.style.zIndex = '1';
+
+    th.style.position = 'relative';
+    th.appendChild(resizer);
+
+    resizer.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const startX = e.pageX;
+      const startWidth = th.offsetWidth;
+
+      const onMouseMove = (e) => {
+        const newWidth = startWidth + (e.pageX - startX);
+        th.style.width = `${newWidth}px`;
+        table.querySelectorAll('tr').forEach(row => {
+          const cell = row.children[index];
+          if (cell) cell.style.width = `${newWidth}px`;
+        });
+      };
+
+      const onMouseUp = () => {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+  });
+}
+
+// Call this after the Follow-Up Report table is generated
+makeTableResizable('.apple-style-report-table');
+
+
+
+
+function downloadTableAsCSV(tableId, filename = 'follow_up_report.csv') {
+    const table = document.getElementById(tableId);
+    const rows = Array.from(table.querySelectorAll('tr'));
+    const csv = rows.map(row =>
+      Array.from(row.querySelectorAll('th, td'))
+        .map(cell => `"${cell.innerText.replace(/"/g, '""')}"`)
+        .join(',')
+    ).join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+  }
+
+  document.getElementById("downloadFollowUpReport").addEventListener("click", () => {
+    downloadTableAsCSV("followUpReportTable");
+  });
+
+
+
+
+    // Show Follow-Up Report Output Modal
+    const reportOutputModal = new bootstrap.Modal(document.getElementById("reportOutputModal"));
+    reportOutputModal.show();
+
+    // Close Supplier Modal
+    const reportModal = bootstrap.Modal.getInstance(document.getElementById("reportModal"));
+    reportModal.hide();
+  });
+});
+
+
+
+function computeTentativeDate(orderDate, leadTime) {
+  if (!orderDate || !leadTime || leadTime === "Selection") return '';
+
+  const order = new Date(orderDate);
+  let maxWorkingDays = 0;
+
+  if (leadTime.includes('Weeks')) {
+    const parts = leadTime.split('-');
+    const maxWeeks = parseInt(parts[1]) || parseInt(parts[0]) || 0;
+    maxWorkingDays = maxWeeks * 5;
+  } else if (leadTime.includes('Days')) {
+    const parts = leadTime.split('-');
+    const maxDays = parseInt(parts[1]) || parseInt(parts[0]) || 0;
+    maxWorkingDays = maxDays;
+  }
+
+  let daysAdded = 0;
+  let tentative = new Date(order);
+
+  while (daysAdded < maxWorkingDays) {
+    tentative.setDate(tentative.getDate() + 1);
+    const day = tentative.getDay();
+    if (day !== 0 && day !== 6) daysAdded++;
+  }
+
+  return tentative.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+
+
+
+
+
+
+
+
+
+document.getElementById("statusReportBtn").addEventListener("click", async () => {
+  const db = firebase.firestore();
+  const user = firebase.auth().currentUser;
+
+  if (!user) {
+    alert("⚠️ User not authenticated.");
+    return;
+  }
+
+  const userOrdersRef = db
+    .collection("orders")
+    .doc(user.uid)
+    .collection("userOrders");
+
+  const rows = document.querySelectorAll("#orderTable tbody tr");
+  let updateCount = 0;
+
+  for (const row of rows) {
+    const status = row.querySelector('.status')?.textContent?.trim();
+    if (status === "Delivered" || status === "Cancelled") continue;
+
+    const orderId = row.getAttribute('data-order-id');
+    if (!orderId) {
+      console.warn("⚠️ Missing orderId in row", row);
+      continue;
+    }
+
+    const qtyOrdered = parseInt(row.querySelector('.qtyOrdered')?.textContent || 0);
+    const qtyDelivered = parseInt(row.querySelector('.qtyDelivered')?.textContent || 0);
+    const qtyCancelled = parseInt(row.querySelector('.qtyCancelled')?.textContent || 0);
+
+    let computedStatus = "Ongoing";
+    if (qtyDelivered + qtyCancelled >= qtyOrdered) {
+      computedStatus = "Delivered";
+    } else if (qtyDelivered === 0 && qtyCancelled === 0) {
+      computedStatus = "Open";
+    }
+
+    try {
+      await userOrdersRef.doc(orderId).update({ status: computedStatus });
+      updateCount++;
+      console.log(`✅ Updated Order ${orderId} to ${computedStatus}`);
+    } catch (error) {
+      console.error(`❌ Failed to update order ${orderId}:`, error);
+    }
+  }
+
+  alert(`✅ Status Report Updated\n${updateCount} orders updated.`);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function generateDeliveryPerformanceReport(startDate, endDate) {
+  const grouped = {};
+
+  fullData.forEach(order => {
+    // ✅ Format the dates first
+    order["Order Date"] = formatDateDisplay(order["Order Date"]);
+    order["Tentative Delivery Date"] = formatDateDisplay(order["Tentative Delivery Date"]);
+    order["Delivery Date"] = formatDateDisplay(order["Delivery Date"]);
+
+    const approved = new Date(order["Order Date"]);
+    if (approved < startDate || approved >= endDate) return;
+
+    const supplier = order["Supplier"] || "Unknown Supplier";
+    if (!grouped[supplier]) grouped[supplier] = [];
+
+    const tentative = new Date(order["Tentative Delivery Date"]);
+    const delivery = order["Delivery Date"] ? new Date(order["Delivery Date"]) : null;
+
+    let status = "";
+    if (delivery && delivery <= tentative) {
+      status = "On Time";
+    } else if (delivery && delivery > tentative) {
+      status = "Delayed";
+    } else if (!delivery && tentative < new Date()) {
+      status = "Delayed";
+    } else {
+      status = "Pending";
+    }
+
+    grouped[supplier].push({
+      orderNumber: order["Number"] || "N/A",
+      description: order["Description"] || "",
+      orderDate: order["Order Date"] || "",
+      tentativeDate: order["Tentative Delivery Date"] || "",
+      deliveryDate: order["Delivery Date"] || "",
+      status: status
+    });
+  });
+
+  renderDeliveryPerformanceToModal(grouped);
+  new bootstrap.Modal(document.getElementById("deliveryPerformanceModal")).show();
+}
+
+
+
+
+function showExcelUploadModal() {
+  const modal = new bootstrap.Modal(document.getElementById("excelUploadLoaderModal"), {
+    backdrop: 'static',
+    keyboard: false
+  });
+  modal.show();
+}
+
+function updateExcelUploadProgress(percent) {
+  const bar = document.getElementById("excelUploadProgressBar");
+  if (bar) {
+    bar.style.width = `${percent}%`;
+    bar.textContent = `${percent}%`;
+  }
+}
+
+function hideExcelUploadModal() {
+  const modalEl = document.getElementById("excelUploadLoaderModal");
+  const modal = bootstrap.Modal.getInstance(modalEl);
+  if (modal) modal.hide();
+
+  updateExcelUploadProgress(0); // reset bar
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.getElementById("rrUploadInput").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (event) => {
+    const data = new Uint8Array(event.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const json = XLSX.utils.sheet_to_json(sheet);
+
+    const allowedFields = ["Receipt", "Date", "Supplier", "Packing Slip", "Receiver"];
+    const tableBody = document.getElementById("rrReportTableBody");
+    const tableHeadRow = document.getElementById("rrReportTableHeadRow");
+
+    tableHeadRow.innerHTML = "";
+    tableBody.innerHTML = "";
+
+    const formattedData = json.map(row => {
+      const entry = {};
+      allowedFields.forEach(field => {
+        entry[field] = field === "Date" ? formatDateDisplay(row[field]) : (row[field] || "");
+      });
+      return entry;
+    });
+
+    const allHeaders = [...allowedFields]; // Used to dynamically update columns
+
+    // 📝 Title Row
+    const titleRow = document.createElement("tr");
+    const titleCell = document.createElement("th");
+    titleCell.setAttribute("colspan", allHeaders.length); // Dynamic colspan
+    titleCell.className = "text-center bg-secondary text-white fs-6";
+    titleCell.textContent = "TRANSMITTAL OF INVOICE WITH RECEIVING REPORT CPS";
+    titleRow.appendChild(titleCell);
+    tableHeadRow.appendChild(titleRow);
+
+    // 📌 Header Row
+    const headersRow = document.createElement("tr");
+    allHeaders.forEach(field => {
+      const th = document.createElement("th");
+      th.textContent = field;
+      headersRow.appendChild(th);
+    });
+    tableHeadRow.appendChild(headersRow);
+
+    // 🧾 Populate Rows
+    formattedData.forEach(row => {
+      const tr = document.createElement("tr");
+      allHeaders.forEach(field => {
+        const td = document.createElement("td");
+        td.textContent = row[field] || "";
+        tr.appendChild(td);
+      });
+      tableBody.appendChild(tr);
+    });
+
+    // ✅ Save to Firestore
+    const user = firebase.auth().currentUser;
+    if (user) {
+      try {
+        await firebase.firestore()
+          .collection("rrReports")
+          .doc(user.uid)
+          .set({
+            rrData: formattedData,
+            allHeaders: allHeaders,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        console.log("RR Report saved to Firestore.");
+      } catch (err) {
+        console.error("Error saving RR report to Firestore:", err);
+      }
+    }
+
+    // 🎯 Show Modal
+    bootstrap.Modal.getInstance(document.getElementById("rrUploadModal"))?.hide();
+    new bootstrap.Modal(document.getElementById("rrReportModal")).show();
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+
+
+document.getElementById("generateRRReportBtn").addEventListener("click", async () => {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  try {
+    const docRef = await firebase.firestore().collection("rrReports").doc(user.uid).get();
+
+    const tableHeadRow = document.getElementById("rrReportTableHeadRow");
+    const tableBody = document.getElementById("rrReportTableBody");
+
+    tableHeadRow.innerHTML = "";
+    tableBody.innerHTML = "";
+
+    if (docRef.exists) {
+      const data = docRef.data();
+      const json = data.rrData || [];
+      const allHeaders = data.allHeaders || ["Receipt", "Date", "Supplier", "Packing Slip", "Receiver"];
+
+      // 📝 Title Row with dynamic colspan
+      const titleRow = document.createElement("tr");
+      const titleCell = document.createElement("th");
+      titleCell.setAttribute("colspan", allHeaders.length);
+      titleCell.className = "text-center bg-secondary text-white fs-6";
+      titleCell.textContent = "TRANSMITTAL OF INVOICE WITH RECEIVING REPORT CPS";
+      titleRow.appendChild(titleCell);
+      tableHeadRow.appendChild(titleRow);
+
+      // 📌 Header Row
+      const headersRow = document.createElement("tr");
+      allHeaders.forEach(field => {
+        const th = document.createElement("th");
+        th.textContent = field;
+        headersRow.appendChild(th);
+      });
+      tableHeadRow.appendChild(headersRow);
+
+      // 🧾 Data Rows
+      json.forEach(row => {
+        const tr = document.createElement("tr");
+        allHeaders.forEach(field => {
+          const td = document.createElement("td");
+          td.textContent = row[field] || "";
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      });
+
+      // ✅ Only show Currency Assignment Modal UI (no supplier checkboxes)
+      showCurrencyAssignmentModal(json);
+
+      // ✅ Show the RR Report Modal
+      new bootstrap.Modal(document.getElementById("rrReportModal")).show();
+
+    } else {
+      // ❌ No report exists yet — prompt for upload
+      new bootstrap.Modal(document.getElementById("rrUploadModal")).show();
+    }
+
+  } catch (err) {
+    console.error("❌ Failed to load RR Report:", err);
+    alert("Failed to load RR Report. Please try again.");
+  }
+});
+
+
+
+
+
+
+
+
+
+document.getElementById("downloadRRReport").addEventListener("click", async () => {
+  const userId = firebase.auth().currentUser?.uid;
+  if (!userId) return;
+
+  try {
+    const docRef = firebase.firestore().collection("rrReports").doc(userId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      alert("No RR Report data available to download.");
+      return;
+    }
+
+    const data = doc.data();
+    const rrData = data.rrData || [];
+    const allHeaders = data.allHeaders || [];
+
+    const worksheetData = [];
+
+    // Add title as first row
+    worksheetData.push(["TRANSMITTAL OF INVOICE WITH RECEIVING REPORT CPS"]);
+    worksheetData.push([]); // Empty spacer row
+    worksheetData.push(allHeaders); // Header row
+
+    // Data rows
+    rrData.forEach(row => {
+      const rowValues = allHeaders.map(field => row[field] || "");
+      worksheetData.push(rowValues);
+    });
+
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // 🔲 Merge Title Row (first row over all columns)
+    worksheet["!merges"] = [{
+      s: { r: 0, c: 0 },
+      e: { r: 0, c: allHeaders.length - 1 }
+    }];
+
+    // 🖋 Style title
+    worksheet["A1"].s = {
+      font: { bold: true, sz: 14 },
+      alignment: { horizontal: "center", vertical: "center" }
+    };
+
+    // 🔤 Style header row (row index 2)
+    for (let i = 0; i < allHeaders.length; i++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 2, c: i });
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = {
+        font: { bold: true },
+        fill: { fgColor: { rgb: "F2F2F2" } },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        },
+        alignment: { horizontal: "center" }
+      };
+    }
+
+    // 🪟 Auto width
+    worksheet["!cols"] = allHeaders.map(header => ({
+      wch: Math.max(header.length + 4, 15)
+    }));
+
+    // ⏫ Generate workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "RR_Report");
+
+    // 📝 Export with styling (requires XLSXStyle or Pro for full style)
+    XLSX.writeFile(workbook, `RR_Report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  } catch (err) {
+    console.error("Download error:", err);
+    alert("Failed to download RR Report.");
+  }
+});
+
+
+document.getElementById("clearRRReport").addEventListener("click", async () => {
+  const confirmClear = confirm("Are you sure you want to delete the current RR Report data and upload new data?");
+  if (!confirmClear) return;
+
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+
+  try {
+    // Delete from Firestore
+    await firebase.firestore().collection("rrReports").doc(user.uid).delete();
+    console.log("RR Report deleted from Firestore.");
+
+    // Clear the table
+    document.getElementById("rrReportTableHeadRow").innerHTML = "";
+    document.getElementById("rrReportTableBody").innerHTML = "";
+
+    // Hide current modal and open the Upload modal
+    bootstrap.Modal.getInstance(document.getElementById("rrReportModal")).hide();
+    new bootstrap.Modal(document.getElementById("rrUploadModal")).show();
+  } catch (err) {
+    console.error("Failed to delete RR report:", err);
+    alert("An error occurred while clearing the RR Report data.");
+  }
+});
+
+
+
+let selectedRRRow = null;
+
+// ✅ Row click on RR Report table
+// ✅ Row click on RR Report table
+
+document.getElementById("rrReportTableBody").addEventListener("click", (e) => {
+  const tr = e.target.closest("tr");
+  if (!tr) return;
+
+  selectedRRRow = tr;
+
+  // ✅ Highlight only the selected row
+  document.querySelectorAll("#rrReportTableBody tr").forEach(row => {
+    row.classList.remove("selected-row");
+  });
+  tr.classList.add("selected-row");
+
+  // ✅ Get column headers
+  const headers = Array.from(document.querySelector("#rrReportTableHeadRow tr:nth-child(2)").children).map(th => th.textContent.trim());
+
+  // ✅ Extract row data into object
+  const rowData = Array.from(tr.children).reduce((obj, td, i) => {
+    obj[headers[i]] = td.textContent.trim();
+    return obj;
+  }, {});
+
+  // ✅ Populate modal fields
+  document.getElementById("detailDepartment").value = rowData["Department"] || "";
+  document.getElementById("detailAmount").value = rowData["Amount"] || "";
+  document.getElementById("detailPO").value = rowData["P.O #"] || "";
+  document.getElementById("detailPR").value = rowData["P.R #"] || "";
+
+  new bootstrap.Modal(document.getElementById("rowDetailModal")).show();
+});
+
+// ✅ Handle Save from Row Detail Modal (RR Report)
+document.getElementById("rowDetailForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!selectedRRRow) return;
+
+  const department = document.getElementById("detailDepartment").value;
+  const amount = document.getElementById("detailAmount").value;
+  const po = document.getElementById("detailPO").value;
+  const pr = document.getElementById("detailPR").value;
+
+  // ✅ Validation
+  if (!/^1\d{7}$/.test(po)) {
+    alert("❗ P.O # must start with 1 and be exactly 8 digits.");
+    return;
+  }
+
+  if (!/^2\d{10}$/.test(pr)) {
+    alert("❗ P.R # must start with 2 and be exactly 11 digits.");
+    return;
+  }
+
+  const newColumns = [
+    { name: "Department", value: department },
+    { name: "Amount", value: amount },
+    { name: "P.O #", value: po },
+    { name: "P.R #", value: pr }
+  ];
+
+  // Get header and current headers
+  const headerRow = document.querySelector("#rrReportTableHeadRow tr:nth-child(2)");
+  const existingHeaders = Array.from(headerRow.children).map(th => th.textContent.trim());
+
+  // Add missing headers if not yet added
+  newColumns.forEach(col => {
+    if (!existingHeaders.includes(col.name)) {
+      const th = document.createElement("th");
+      th.textContent = col.name;
+      headerRow.appendChild(th);
+
+      // Add blank cell to all rows
+      document.querySelectorAll("#rrReportTableBody tr").forEach(row => {
+        const td = document.createElement("td");
+        td.textContent = "";
+        row.appendChild(td);
+      });
+
+      // 🔄 Update title colspan
+      const titleTh = document.querySelector("#rrReportTableHeadRow tr:first-child th");
+      titleTh.setAttribute("colspan", headerRow.children.length);
+    }
+  });
+
+  // Update clicked row data
+  const allHeaders = Array.from(headerRow.children).map(th => th.textContent.trim());
+  const rowCells = selectedRRRow.children;
+
+  newColumns.forEach(col => {
+    const colIndex = allHeaders.indexOf(col.name);
+    if (colIndex >= rowCells.length) {
+      const td = document.createElement("td");
+      td.textContent = col.value;
+      selectedRRRow.appendChild(td);
+    } else {
+      rowCells[colIndex].textContent = col.value;
+    }
+  });
+
+  // 🔄 Save updated table data to Firestore
+  const updatedData = [];
+  document.querySelectorAll("#rrReportTableBody tr").forEach(row => {
+    const rowData = {};
+    Array.from(row.children).forEach((cell, i) => {
+      rowData[allHeaders[i]] = cell.textContent || "";
+    });
+    updatedData.push(rowData);
+  });
+
+  const user = firebase.auth().currentUser;
+  if (user) {
+    try {
+      await firebase.firestore()
+        .collection("rrReports")
+        .doc(user.uid)
+        .set({
+          rrData: updatedData,
+          allHeaders,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      console.log("RR Report updated.");
+    } catch (err) {
+      console.error("Failed to save RR report data:", err);
+    }
+  }
+
+
+
+
+  // ✅ Close modal
+  bootstrap.Modal.getInstance(document.getElementById("rowDetailModal")).hide();
+});
+
+
+
+
+document.getElementById("searchPackingSlipInput").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const searchTerm = e.target.value.trim().toLowerCase();
+    if (!searchTerm) return;
+
+    const rows = document.querySelectorAll("#rrReportTableBody tr");
+    let found = false;
+
+    // Get the column index of "Packing Slip"
+    const packingSlipIndex = Array.from(
+      document.querySelectorAll("#rrReportTableHeadRow tr:nth-child(2) th")
+    ).findIndex((th) => th.textContent.trim().toLowerCase() === "packing slip");
+
+    if (packingSlipIndex === -1) {
+      alert("Packing Slip column not found.");
+      return;
+    }
+
+    rows.forEach((row) => {
+      const cell = row.children[packingSlipIndex];
+      const value = cell?.textContent.trim().toLowerCase();
+
+      if (value === searchTerm) {
+        // ✅ Highlight selected row
+        document.querySelectorAll("#rrReportTableBody tr").forEach(r => r.classList.remove("selected-row"));
+        row.classList.add("selected-row");
+
+        // ✅ Store reference to the selected row
+        selectedRRRow = row;
+
+        // ✅ Get headers
+        const headers = Array.from(document.querySelectorAll("#rrReportTableHeadRow tr:nth-child(2) th")).map(th => th.textContent.trim());
+        const rowData = Array.from(row.children).reduce((obj, td, i) => {
+          obj[headers[i]] = td.textContent.trim();
+          return obj;
+        }, {});
+
+        // ✅ Populate modal fields
+        document.getElementById("detailDepartment").value = rowData["Department"] || "";
+        document.getElementById("detailAmount").value = rowData["Amount"] || "";
+        document.getElementById("detailPO").value = rowData["P.O #"] || "";
+        document.getElementById("detailPR").value = rowData["P.R #"] || "";
+
+        // ✅ Open modal
+        new bootstrap.Modal(document.getElementById("rowDetailModal")).show();
+
+        found = true;
+      }
+    });
+
+    if (!found) {
+      alert("❌ Packing Slip not found.");
+    }
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+function showCurrencyAssignmentModal(data) {
+  globalRRData = data;
+  const container = document.getElementById("assignCurrencyContainer");
+  container.innerHTML = "";
+
+  const suppliers = [...new Set(data.map(row => row["Supplier"]).filter(Boolean))];
+  const currencies = ["PHP", "USD", "JPY"];
+
+  suppliers.forEach(supplier => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "d-flex align-items-center gap-2";
+
+    const label = document.createElement("label");
+    label.className = "me-2 mb-0 fw-semibold";
+    label.textContent = supplier;
+
+    const select = document.createElement("select");
+    select.className = "form-select form-select-sm w-auto rr-currency-select";
+    select.setAttribute("data-supplier", supplier);
+
+    // ✅ Get previously assigned currency from the data
+    const existingCurrency = (
+      data.find(row => row["Supplier"] === supplier && row["Currency"]) || {}
+    ).Currency || "PHP";
+
+    currencies.forEach(curr => {
+      const option = document.createElement("option");
+      option.value = curr;
+      option.textContent = curr;
+      if (curr === existingCurrency) option.selected = true; // ✅ Preselect if matched
+      select.appendChild(option);
+    });
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(select);
+    container.appendChild(wrapper);
+  });
+}
+
+
+document.getElementById("applyCurrencyAssignments").addEventListener("click", async (e) => {
+  e.preventDefault();       // Prevent form submission (if inside a form)
+  e.stopPropagation();      // Prevent event from closing modal
+
+  const currencyMap = {};
+
+  // 🔄 Collect selected currencies
+  document.querySelectorAll(".rr-currency-select").forEach(select => {
+    const supplier = select.getAttribute("data-supplier");
+    const currency = select.value;
+    currencyMap[supplier] = currency;
+  });
+
+  // 📝 Update Currency in global RR data
+  globalRRData.forEach(row => {
+    const supplier = row["Supplier"];
+    row["Currency"] = currencyMap[supplier] || "PHP";
+  });
+
+  // 💾 Save to Firestore
+  const user = firebase.auth().currentUser;
+  if (user) {
+    const allHeaders = Array.from(
+      new Set([
+        ...Object.keys(globalRRData[0] || {}),
+        "Currency"
+      ])
+    );
+
+    try {
+      await firebase.firestore()
+        .collection("rrReports")
+        .doc(user.uid)
+        .set({
+          rrData: globalRRData,
+          allHeaders,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      console.log("✅ Currency assignment saved to Firestore.");
+    } catch (err) {
+      console.error("❌ Failed to save currency data:", err);
+    }
+  }
+
+  // ✅ Close only the Assign Currency modal
+  const assignModal = bootstrap.Modal.getInstance(document.getElementById("assignCurrencyModal"));
+  if (assignModal) assignModal.hide();
+
+  // ✅ Update the Currency column in-place
+  updateDisplayedCurrencies(currencyMap);
+
+  // ✅ Re-focus on RR Report modal to ensure it's still visible
+  const rrReportModalEl = document.getElementById("rrReportModal");
+  if (!rrReportModalEl.classList.contains("show")) {
+    new bootstrap.Modal(rrReportModalEl).show();
+  }
+});
+
+function updateDisplayedCurrencies(currencyMap) {
+  const headerCells = Array.from(document.querySelectorAll("#rrReportTableHeadRow tr:nth-child(2) th"));
+  const currencyColIndex = headerCells.findIndex(th => th.textContent.trim() === "Currency");
+  const supplierColIndex = headerCells.findIndex(th => th.textContent.trim() === "Supplier");
+
+  if (currencyColIndex === -1 || supplierColIndex === -1) return;
+
+  document.querySelectorAll("#rrReportTableBody tr").forEach(row => {
+    const cells = row.children;
+    const supplier = cells[supplierColIndex]?.textContent.trim();
+    const newCurrency = currencyMap[supplier];
+    if (newCurrency) {
+      cells[currencyColIndex].textContent = newCurrency;
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.getElementById('confirmDateRangeBtn').addEventListener('click', () => {
+  const startMonth = document.getElementById('startMonth').value;
+  const endMonth = document.getElementById('endMonth').value;
+
+  if (!startMonth || !endMonth) {
+    alert("Please select both start and end month.");
+    return;
+  }
+
+  const startDate = new Date(startMonth + "-01");
+  const endDate = new Date(endMonth + "-01");
+  endDate.setMonth(endDate.getMonth() + 1); // include full end month
+
+  generateDeliveryPerformanceReport(startDate, endDate);
+  bootstrap.Modal.getInstance(document.getElementById("dateRangeModal")).hide();
+});
+
+
+document.getElementById('deliveryperformanceBtn').addEventListener('click', () => {
+  new bootstrap.Modal(document.getElementById("dateRangeModal")).show();
+});
+
+
+
+
+// Helper: Count working days between two dates (inclusive)
+function getWorkingDays(start, end) {
+  let count = 0;
+  const curDate = new Date(start);
+  curDate.setHours(0,0,0,0);
+  const endDate = new Date(end);
+  endDate.setHours(0,0,0,0);
+
+  while (curDate <= endDate) {
+    const day = curDate.getDay();
+    if (day !== 0 && day !== 6) count++; // skip weekends
+    curDate.setDate(curDate.getDate() + 1);
+  }
+  return count;
+}
+
+function generateDeliveryPerformanceReport(startDate, endDate) {
+  const grouped = {};
+  const summaryCounts = {};
+  const deliveryTimes = {};
+
+  fullData.forEach(order => {
+    const orderDate = new Date(order["Order Date"]);
+    orderDate.setHours(0,0,0,0);
+    if (isNaN(orderDate.getTime())) return;
+
+    const normalizedStart = new Date(startDate);
+    const normalizedEnd = new Date(endDate);
+    normalizedStart.setHours(0,0,0,0);
+    normalizedEnd.setHours(0,0,0,0);
+    if (orderDate < normalizedStart || orderDate > normalizedEnd) return;
+
+    const supplier = order["Supplier"] || "Unknown Supplier";
+    if (!grouped[supplier]) grouped[supplier] = [];
+    if (!summaryCounts[supplier]) summaryCounts[supplier] = { OnTime: new Set(), Delayed: new Set(), Pending: new Set() };
+    if (!deliveryTimes[supplier]) deliveryTimes[supplier] = [];
+
+    const tentative = new Date(order["Tentative Delivery Date"]);
+    const delivery = order["Delivery Date"] ? new Date(order["Delivery Date"]) : null;
+
+    let status = "";
+    if (delivery && delivery <= tentative) status = "On Time";
+    else if (delivery && delivery > tentative) status = "Delayed";
+    else if (!delivery && tentative < new Date()) status = "Delayed";
+    else status = "Pending";
+
+    const orderNum = order["Number"] || "N/A";
+
+    // Unique order counting
+    if (status === "Delayed") {
+      summaryCounts[supplier].Delayed.add(orderNum);
+      summaryCounts[supplier].OnTime.delete(orderNum);
+      summaryCounts[supplier].Pending.delete(orderNum);
+    } else if (status === "On Time") {
+      if (!summaryCounts[supplier].Delayed.has(orderNum)) summaryCounts[supplier].OnTime.add(orderNum);
+    } else if (status === "Pending") {
+      if (!summaryCounts[supplier].Delayed.has(orderNum) && !summaryCounts[supplier].OnTime.has(orderNum)) {
+        summaryCounts[supplier].Pending.add(orderNum);
+      }
+    }
+
+    // Store delivery times in working days
+    if (delivery) {
+      const diffDays = getWorkingDays(orderDate, delivery);
+      deliveryTimes[supplier].push(diffDays);
+    }
+
+    grouped[supplier].push({
+      orderNumber: orderNum,
+      description: order["Description"] || "",
+      orderDate: order["Order Date"] || "",
+      tentativeDate: order["Tentative Delivery Date"] || "",
+      deliveryDate: order["Delivery Date"] || "",
+      status: status
+    });
+  });
+
+  // Convert Sets to counts
+  const summaryCountsNumber = {};
+  for (let supplier in summaryCounts) {
+    const OnTime = summaryCounts[supplier].OnTime.size;
+    const Delayed = summaryCounts[supplier].Delayed.size;
+    const Pending = summaryCounts[supplier].Pending.size;
+    const Total = OnTime + Delayed + Pending;
+
+    // Compute OTD %
+    const onTimePct = Total > 0 ? OnTime / Total : 0;
+
+    // Average delivery in working days
+    const avgDelivery = deliveryTimes[supplier].length
+      ? deliveryTimes[supplier].reduce((a,b)=>a+b,0)/deliveryTimes[supplier].length
+      : Infinity;
+
+    summaryCountsNumber[supplier] = { OnTime, Delayed, Pending, Total, onTimePct, avgDelivery };
+  }
+
+  // Compute weighted score: 60% OTD, 30% total orders (normalized), 10% speed (inverted)
+  const maxTotalOrders = Math.max(...Object.values(summaryCountsNumber).map(s=>s.Total));
+  const maxAvgDelivery = Math.max(...Object.values(summaryCountsNumber).map(s=>s.avgDelivery === Infinity ? 0 : s.avgDelivery));
+
+  const supplierScores = {};
+  for (let supplier in summaryCountsNumber) {
+    const s = summaryCountsNumber[supplier];
+    const normalizedTotal = maxTotalOrders ? s.Total / maxTotalOrders : 0;
+    const normalizedSpeed = maxAvgDelivery && s.avgDelivery !== Infinity ? (maxAvgDelivery - s.avgDelivery)/maxAvgDelivery : 0;
+    supplierScores[supplier] = 0.6*s.onTimePct + 0.3*normalizedTotal + 0.1*normalizedSpeed;
+  }
+
+  // Top 3 by weighted score
+  const top3Performers = Object.keys(supplierScores)
+    .sort((a,b) => supplierScores[b]-supplierScores[a])
+    .slice(0,3);
+
+  // Fastest among top 3
+  let fastestSupplier = null;
+  let minAvgDays = Infinity;
+  top3Performers.forEach(supplier => {
+    const avg = summaryCountsNumber[supplier].avgDelivery;
+    if (avg < minAvgDays) {
+      minAvgDays = avg;
+      fastestSupplier = supplier;
+    }
+  });
+
+  renderDeliveryPerformanceToModal(grouped, summaryCountsNumber, top3Performers, deliveryTimes, fastestSupplier);
+  new bootstrap.Modal(document.getElementById("deliveryPerformanceModal")).show();
+}
+
+
+function generateDeliveryPerformanceReport(startDate, endDate) {
+  const grouped = {};
+  const summaryCounts = {};
+  const deliveryTimes = {};
+
+  fullData.forEach(order => {
+    const orderDate = new Date(order["Order Date"]);
+    orderDate.setHours(0,0,0,0);
+    if (isNaN(orderDate.getTime())) return;
+
+    const normalizedStart = new Date(startDate);
+    const normalizedEnd = new Date(endDate);
+    normalizedStart.setHours(0,0,0,0);
+    normalizedEnd.setHours(0,0,0,0);
+    if (orderDate < normalizedStart || orderDate > normalizedEnd) return;
+
+    const supplier = order["Supplier"] || "Unknown Supplier";
+    if (!grouped[supplier]) grouped[supplier] = [];
+    if (!summaryCounts[supplier]) summaryCounts[supplier] = { OnTime: new Set(), Delayed: new Set(), Pending: new Set() };
+    if (!deliveryTimes[supplier]) deliveryTimes[supplier] = [];
+
+    const tentative = new Date(order["Tentative Delivery Date"]);
+    const delivery = order["Delivery Date"] ? new Date(order["Delivery Date"]) : null;
+
+    let status = "";
+    if (delivery && delivery <= tentative) status = "On Time";
+    else if (delivery && delivery > tentative) status = "Delayed";
+    else if (!delivery && tentative < new Date()) status = "Delayed";
+    else status = "Pending";
+
+    const orderNum = order["Number"] || "N/A";
+
+    if (status === "Delayed") {
+      summaryCounts[supplier].Delayed.add(orderNum);
+      summaryCounts[supplier].OnTime.delete(orderNum);
+      summaryCounts[supplier].Pending.delete(orderNum);
+    } else if (status === "On Time") {
+      if (!summaryCounts[supplier].Delayed.has(orderNum)) summaryCounts[supplier].OnTime.add(orderNum);
+    } else if (status === "Pending") {
+      if (!summaryCounts[supplier].Delayed.has(orderNum) && !summaryCounts[supplier].OnTime.has(orderNum)) {
+        summaryCounts[supplier].Pending.add(orderNum);
+      }
+    }
+
+    if (delivery) {
+      const diffDays = getWorkingDays(orderDate, delivery);
+      deliveryTimes[supplier].push(diffDays);
+    }
+
+    grouped[supplier].push({
+      orderNumber: orderNum,
+      description: order["Description"] || "",
+      orderDate: order["Order Date"] || "",
+      tentativeDate: order["Tentative Delivery Date"] || "",
+      deliveryDate: order["Delivery Date"] || "",
+      status: status
+    });
+  });
+
+  const summaryCountsNumber = {};
+  for (let supplier in summaryCounts) {
+    const OnTime = summaryCounts[supplier].OnTime.size;
+    const Delayed = summaryCounts[supplier].Delayed.size;
+    const Pending = summaryCounts[supplier].Pending.size;
+    const Total = OnTime + Delayed + Pending;
+    const onTimePct = Total > 0 ? OnTime / Total : 0;
+    const avgDelivery = deliveryTimes[supplier].length
+      ? deliveryTimes[supplier].reduce((a,b)=>a+b,0)/deliveryTimes[supplier].length
+      : Infinity;
+    summaryCountsNumber[supplier] = { OnTime, Delayed, Pending, Total, onTimePct, avgDelivery };
+  }
+
+  const maxTotalOrders = Math.max(...Object.values(summaryCountsNumber).map(s=>s.Total));
+  const maxAvgDelivery = Math.max(...Object.values(summaryCountsNumber).map(s=>s.avgDelivery === Infinity ? 0 : s.avgDelivery));
+
+  const supplierScores = {};
+  for (let supplier in summaryCountsNumber) {
+    const s = summaryCountsNumber[supplier];
+    const normalizedTotal = maxTotalOrders ? s.Total / maxTotalOrders : 0;
+    const normalizedSpeed = maxAvgDelivery && s.avgDelivery !== Infinity ? (maxAvgDelivery - s.avgDelivery)/maxAvgDelivery : 0;
+    supplierScores[supplier] = 0.6*s.onTimePct + 0.3*normalizedTotal + 0.1*normalizedSpeed;
+  }
+
+  // Top 3 performers
+  const top3Performers = Object.keys(supplierScores)
+    .sort((a,b) => supplierScores[b]-supplierScores[a])
+    .slice(0,3);
+
+  // Bottom 3 performers
+  const bottom3Performers = Object.keys(supplierScores)
+    .sort((a,b) => supplierScores[a]-supplierScores[b])
+    .slice(0,3);
+
+  // Fastest among top 3
+  let fastestSupplier = null;
+  let minAvgDays = Infinity;
+  top3Performers.forEach(supplier => {
+    const avg = summaryCountsNumber[supplier].avgDelivery;
+    if (avg < minAvgDays) {
+      minAvgDays = avg;
+      fastestSupplier = supplier;
+    }
+  });
+
+  renderDeliveryPerformanceToModal(grouped, summaryCountsNumber, top3Performers, bottom3Performers, deliveryTimes, fastestSupplier);
+  new bootstrap.Modal(document.getElementById("deliveryPerformanceModal")).show();
+}
+
+// Updated render function to include bottom performers
+function renderDeliveryPerformanceToModal(grouped, summaryCounts, topPerformers, bottomPerformers, deliveryTimes, fastestSupplier) {
+  const container = document.getElementById("deliveryPerformanceContent");
+  container.innerHTML = '';
+
+  if (!Object.keys(grouped).length) {
+    container.innerHTML = `<p class="text-muted">No matching data found for the selected range.</p>`;
+    return;
+  }
+
+  Object.entries(grouped).forEach(([supplier, records]) => {
+    const summary = summaryCounts[supplier];
+    const onTimePercent = Math.round((summary.OnTime / summary.Total) * 100);
+
+    let borderClass = 'border';
+    let rankLabel = '';
+
+    if (topPerformers[0] === supplier) rankLabel = '<span class="badge bg-warning text-dark">Top 1</span>';
+    else if (topPerformers[1] === supplier) rankLabel = '<span class="badge bg-secondary text-light">Top 2</span>';
+    else if (topPerformers[2] === supplier) rankLabel = '<span class="badge bg-dark text-light">Top 3</span>';
+
+    if (bottomPerformers[0] === supplier) rankLabel += ' <span class="badge bg-danger text-light">Bottom 1</span>';
+    else if (bottomPerformers[1] === supplier) rankLabel += ' <span class="badge bg-danger text-light">Bottom 2</span>';
+    else if (bottomPerformers[2] === supplier) rankLabel += ' <span class="badge bg-danger text-light">Bottom 3</span>';
+
+    let fastestLabel = '';
+    if (fastestSupplier === supplier) fastestLabel = '<span class="badge bg-info text-dark ms-1">Fastest</span>';
+
+    const avgDelivery = deliveryTimes[supplier].length
+      ? (deliveryTimes[supplier].reduce((a,b)=>a+b,0)/deliveryTimes[supplier].length).toFixed(1)
+      : '-';
+
+    const summaryBox = document.createElement("div");
+    summaryBox.className = `mb-2 p-3 rounded bg-light ${borderClass}`;
+    summaryBox.innerHTML = `
+      <h6 class="mb-1 text-primary">📦 ${supplier} ${rankLabel} ${fastestLabel}</h6>
+      <div class="d-flex gap-3 flex-wrap small mb-2">
+        <span><strong>On Time:</strong> <span class="text-success">${summary.OnTime}</span></span>
+        <span><strong>Delayed:</strong> <span class="text-danger">${summary.Delayed}</span></span>
+        <span><strong>Pending:</strong> <span class="text-warning text-dark">${summary.Pending}</span></span>
+        <span><strong>Total Orders:</strong> ${summary.Total}</span>
+        <span><strong>Avg Delivery:</strong> ${avgDelivery} days</span>
+      </div>
+      <div class="progress" style="height: 10px;">
+        <div class="progress-bar bg-success" role="progressbar" style="width: ${onTimePercent}%" title="On Time ${onTimePercent}%"></div>
+      </div>
+      <small class="text-muted">On Time Percentage</small>
+    `;
+
+    const table = document.createElement("table");
+    table.className = "table table-bordered table-sm mb-4";
+    table.innerHTML = `
+      <thead class="table-light">
+        <tr>
+          <th>Order #</th>
+          <th>Description</th>
+          <th>Order Date</th>
+          <th>Tentative Delivery Date</th>
+          <th>Delivery Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${records.map(r=>`
+          <tr>
+            <td>${r.orderNumber}</td>
+            <td>${r.description}</td>
+            <td>${r.orderDate || '-'}</td>
+            <td>${r.tentativeDate || '-'}</td>
+            <td>${formatDateDisplay(r.deliveryDate) || '-'}</td>
+            <td><span class="badge ${getStatusBadgeClass(r.status)}">${r.status}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+
+    container.appendChild(summaryBox);
+    container.appendChild(table);
+  });
+}
+
+
+function getStatusBadgeClass(status) {
+  switch (status) {
+    case "On Time": return "bg-success";
+    case "Delayed": return "bg-danger";
+    case "Pending": return "bg-warning text-dark";
+    default: return "bg-secondary";
+  }
+}
+
+function isValidDate(str) {
+  const d = new Date(str);
+  return !isNaN(d.getTime());
+}
+
+
+
+
+function formatDateDisplay(dateValue) {
+  if (!dateValue) return "";
+
+  // ✅ Excel serial number (e.g., 45646)
+  if (!isNaN(dateValue) && Number(dateValue) > 59 && Number(dateValue) < 60000) {
+    const excelEpoch = new Date(1899, 11, 30);
+    const date = new Date(excelEpoch.getTime() + Number(dateValue) * 86400000);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }); // ➜ February 28, 2025
+  }
+
+  // ✅ Date object
+  if (Object.prototype.toString.call(dateValue) === "[object Date]" && !isNaN(dateValue)) {
+    return dateValue.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  // ✅ yyyy-mm-dd format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+    const [yyyy, mm, dd] = dateValue.split("-");
+    const date = new Date(`${yyyy}-${mm}-${dd}`);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  // ✅ mm/dd/yyyy format
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) {
+    const [mm, dd, yyyy] = dateValue.split("/");
+    const date = new Date(`${yyyy}-${mm}-${dd}`);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  return dateValue; // fallback
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ document.getElementById("logoutBtn").addEventListener("click", async () => {
+  const user = firebase.auth().currentUser;
+
+  if (user) {
+    try {
+      await firebase.firestore()
+        .collection("users")
+        .doc(user.uid)
+        .update({
+          sessionActive: false,
+          lastSession: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (err) {
+      console.error("Failed to update sessionActive on logout:", err);
+    }
+  }
+
+  await firebase.auth().signOut();
+  window.location.href = "Loginindex.html";
+});
+
+
+function resetTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    logoutUser(); // 🔴 Only trigger on real inactivity
+  }, 5 * 60 * 1000); // 5 minutes
+}
+
+// 👇 Updated logoutUser function (inactivity logout only)
+async function logoutUser() {
+  alert("You've been logged out due to inactivity.");
+
+  const user = firebase.auth().currentUser;
+
+  if (user) {
+    try {
+      await firebase.firestore()
+        .collection("users")
+        .doc(user.uid)
+        .update({
+          sessionActive: false,
+          sessionId: null,
+          lastSession: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (err) {
+      console.error("Failed to update session info on logout:", err);
+    }
+  }
+
+  localStorage.removeItem('sessionId');
+  sessionStorage.clear();
+
+  try {
+    await firebase.auth().signOut();
+  } catch (err) {
+    console.error("Logout error:", err.message);
+  }
+
+  window.location.href = "Loginindex.html";
+}
+
+// ✅ Start listening for user activity
+window.addEventListener('mousemove', resetTimer);
+window.addEventListener('keydown', resetTimer);
+window.addEventListener('scroll', resetTimer);
+window.addEventListener('click', resetTimer);
+resetTimer(); // Start timer on load
+
+// ❌ Remove session invalidation on refresh
+// ✅ Only update lastSession timestamp (don't log out on refresh)
+window.addEventListener('beforeunload', async () => {
+  const user = firebase.auth().currentUser;
+  if (user) {
+    try {
+      await firebase.firestore()
+        .collection("users")
+        .doc(user.uid)
+        .update({
+          lastSession: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    } catch (error) {
+      console.warn("Session timestamp update failed on unload:", error);
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleSidebar = document.getElementById("toggleSidebar");
+  const sidebar = document.getElementById("functionSidebar");
+
+  if (toggleSidebar && sidebar) {
+    toggleSidebar.addEventListener("click", (e) => {
+      e.preventDefault();
+      sidebar.classList.toggle("translate-x-0");      // Slide in
+      sidebar.classList.toggle("translate-x-full");   // Slide out
+      sidebar.classList.toggle("hidden");             // Fully hide (optional)
+    });
+  } else {
+    console.warn("Sidebar or toggleSidebar not found in the DOM.");
+  }
+});
+
+
+
+
+
+</script>
+
+
+
+
+
+</body>
+</html>

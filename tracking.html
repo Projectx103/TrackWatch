@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackWise - Order Tracking</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0066CC;
+      --primary-dark: #004C99;
+      --secondary: #00A3E0;
+      --accent: #0088CC;
+      --dark: #1a1a1a;
+      --light: #f5f5f5;
+      --gray: #6b7280;
+      --border: #e5e7eb;
+      --success: #22C55E;
+      --warning: #FCD34D;
+      --info: #3B82F6;
+      --danger: #EF4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .logo svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .user-name {
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .logout-btn:hover {
+      background: white;
+      color: var(--primary);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      background: var(--light);
+      padding: 3rem 0;
+    }
+
+    .tracking-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: var(--gray);
+      font-size: 1.1rem;
+      margin-bottom: 3rem;
+    }
+
+    /* Search Section */
+    .search-section {
+      background: white;
+      border-radius: 8px;
+      padding: 2.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .search-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 1rem;
+      align-items: stretch;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 1rem 1.5rem;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .search-btn {
+      padding: 1rem 3rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    }
+
+    .search-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Results Section */
+    .result-section {
+      background: white;
+      border-radius: 8px;
+      padding: 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .result-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      padding: 2rem;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .result-header-info h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .result-header-info p {
+      margin: 0.5rem 0 0 0;
+      opacity: 0.9;
+    }
+
+    .status-badge {
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-complete {
+      background: var(--success);
+      color: white;
+    }
+
+    .status-pending {
+      background: var(--warning);
+      color: #1F2937;
+    }
+
+    .status-partial {
+      background: var(--info);
+      color: white;
+    }
+
+    .status-delayed {
+      background: var(--danger);
+      color: white;
+    }
+
+    .result-body {
+      padding: 2.5rem;
+    }
+
+    /* Courier Banner */
+    .courier-banner {
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+      border-left: 5px solid var(--info);
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      border-radius: 8px;
+    }
+
+    .courier-banner h5 {
+      color: #1E40AF;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .courier-banner p {
+      color: #1E3A8A;
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    /* Info Grid */
+    .info-section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .info-item {
+      background: var(--light);
+      padding: 1.25rem;
+      border-radius: 6px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .info-item label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-item .value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+      word-break: break-word;
+    }
+
+    /* Timeline */
+    .timeline-section {
+      margin-top: 3rem;
+    }
+
+    .timeline {
+      position: relative;
+      padding: 2rem 0 1rem 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 24px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 70px;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-icon {
+      position: absolute;
+      left: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: white;
+      border: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .timeline-icon.completed {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .timeline-icon.completed svg {
+      stroke: white;
+    }
+
+    .timeline-content {
+      background: var(--light);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .timeline-content h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin: 0 0 0.5rem 0;
+    }
+
+    .timeline-content p {
+      color: var(--gray);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    /* Error Message */
+    .error-message {
+      background: #FEE2E2;
+      color: #991B1B;
+      padding: 1.25rem 1.5rem;
+      border-radius: 8px;
+      border-left: 5px solid var(--danger);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--dark);
+      color: white;
+      padding: 3rem 0 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-section h4 {
+      color: var(--secondary);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a {
+      color: #d1d5db;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--secondary);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #374151;
+      padding-top: 1.5rem;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+
+    .footer-branding {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 6px solid var(--light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .search-box {
+        flex-direction: column;
+      }
+
+      .result-header {
+        text-align: center;
+      }
+
+      .result-header-info h2 {
+        font-size: 1.4rem;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loader"></div>
+</div>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-content">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+      TrackWise
+    </div>
+    <div class="user-info">
+      <span class="user-name" id="userName">Loading...</span>
+      <button class="logout-btn" onclick="logoutUser()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+  <div class="tracking-container">
+    <h1 class="page-title">Track & Trace</h1>
+    <p class="page-subtitle">Enter your tracking number to get real-time shipment updates</p>
+
+    <div class="search-section">
+      <label class="search-label">Tracking Number</label>
+      <div class="search-box">
+        <input 
+          type="text" 
+          id="orderNumberInput" 
+          class="search-input" 
+          placeholder="Enter your tracking number (e.g., 10089756)"
+          onkeypress="handleEnterKey(event)"
+        >
+        <button class="search-btn" id="searchBtn" onclick="searchOrder()">
+          <span id="btnText">Track</span>
+          <span id="btnSpinner" class="loading-spinner" style="display: none;"></span>
+        </button>
+      </div>
+    </div>
+
+    <div id="errorContainer"></div>
+    <div id="resultContainer"></div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-grid">
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a href="#">Customer Service</a></li>
+          <li><a href="#">Get a Quote</a></li>
+          <li><a href="#">Find Service Point</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Services</h4>
+        <ul class="footer-links">
+          <li><a href="#">Express Shipping</a></li>
+          <li><a href="#">Freight Services</a></li>
+          <li><a href="#">Supply Chain</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h4>Support</h4>
+        <ul class="footer-links">
+          <li><a href="info-sections.html">Privacy Policy</a></li>
+          <li><a href="info-sections.html">Terms of Use</a></li>
+          <li><a href="info-sections.html">About Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-branding">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+          <line x1="9" y1="9" x2="9.01" y2="9"></line>
+          <line x1="15" y1="9" x2="15.01" y2="9"></line>
+        </svg>
+        Powered by Codista Team
+      </div>
+      <div>
+        &copy; <span id="currentYear"></span> TrackWise Order Monitoring System. Designed by Jefferson Molina
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9LCzMuEGIiRQrOVCgH6d-jxxJLZ0QBCk",
+    authDomain: "order-monitoring-purchasing.firebaseapp.com",
+    projectId: "order-monitoring-purchasing",
+    storageBucket: "order-monitoring-purchasing.appspot.com",
+    messagingSenderId: "209378598320",
+    appId: "1:209378598320:web:0c143d69bc329a994d8a75",
+    measurementId: "G-PPNWT4ECV0"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const firestore = firebase.firestore();
+
+  let supplierCouriers = {};
+  let currentUser = null;
+
+  document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+  auth.onAuthStateChanged(async (user) => {
+    if (!user) {
+      redirectToLogin("You must be logged in to access this page.");
+      return;
+    }
+
+    try {
+      const userDoc = await firestore.collection('users').doc(user.uid).get();
+      
+      if (!userDoc.exists) {
+        redirectToLogin("User account not found. Please contact your administrator.");
+        return;
+      }
+
+      const userData = userDoc.data();
+      currentUser = userData;
+
+      if (userData.role !== 'requester') {
+        alert("❌ Access Denied\n\nYou don't have permission to access this page.\n\nOnly users with 'requester' role can track orders.\n\nPlease contact your administrator to request access.");
+        window.location.href = "Loginindex.html";
+        return;
+      }
+
+      if (userData.approved !== true) {
+        alert("❌ Account Not Approved\n\nYour account is pending approval.\n\nPlease contact your administrator to approve your account before you can track orders.");
+        window.location.href = "Loginindex.html";
+        return;
+      }
+
+      document.getElementById('userName').textContent = userData.fullName || user.email;
+      document.getElementById('loadingScreen').style.display = 'none';
+      
+      await loadSupplierCouriers();
+
+    } catch (error) {
+      console.error("Error checking user permissions:", error);
+      redirectToLogin("Error verifying your account. Please try again.");
+    }
+  });
+
+  function redirectToLogin(message) {
+    if (message) {
+      alert(message);
+    }
+    window.location.href = "Loginindex.html";
+  }
+
+  async function logoutUser() {
+    try {
+      await auth.signOut();
+      window.location.href = "Loginindex.html";
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Error logging out. Please try again.");
+    }
+  }
+
+  async function loadSupplierCouriers() {
+    try {
+      const suppliersSnapshot = await firestore.collection('suppliers').get();
+      suppliersSnapshot.forEach(doc => {
+        const data = doc.data();
+        supplierCouriers[data.name] = data.courier || 'Not Assigned';
+      });
+      console.log('Supplier couriers loaded:', supplierCouriers);
+    } catch (error) {
+      console.error('Error loading supplier couriers:', error);
+    }
+  }
+
+  function handleEnterKey(event) {
+    if (event.key === 'Enter') {
+      searchOrder();
+    }
+  }
+
+  async function searchOrder() {
+    const orderNumber = document.getElementById('orderNumberInput').value.trim();
+    const errorContainer = document.getElementById('errorContainer');
+    const resultContainer = document.getElementById('resultContainer');
+    const searchBtn = document.getElementById('searchBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    errorContainer.innerHTML = '';
+    resultContainer.innerHTML = '';
+
+    if (!orderNumber) {
+      showError('Please enter a tracking number');
+      return;
+    }
+
+    searchBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnSpinner.style.display = 'inline-block';
+
+    try {
+      const allOrdersQuery = firestore.collectionGroup('userOrders')
+        .where('Number', '==', orderNumber)
+        .limit(1);
+      
+      const querySnapshot = await allOrdersQuery.get();
+
+      if (!querySnapshot.empty) {
+        const foundOrder = querySnapshot.docs[0].data();
+        displayOrderTracking(foundOrder);
+      } else {
+        showError('Tracking number not found. Please check your number and try again.');
+      }
+
+    } catch (error) {
+      console.error('Error searching order:', error);
+      showError('An error occurred while searching. Please try again.');
+    } finally {
+      searchBtn.disabled = false;
+      btnText.style.display = 'inline';
+      btnSpinner.style.display = 'none';
+    }
+  }
+
+  function showError(message) {
+    const errorContainer = document.getElementById('errorContainer');
+    errorContainer.innerHTML = `
+      <div class="error-message">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <span><strong>Error:</strong> ${message}</span>
+      </div>
+    `;
+  }
+
+  function displayOrderTracking(order) {
+    const resultContainer = document.getElementById('resultContainer');
+    
+    const qtyOrdered = Number(order['Quantity Ordered']) || 0;
+    const qtyDelivered = Number(order['Quantity Delivered']) || 0;
+    const qtyCancelled = Number(order['Quantity Cancelled']) || 0;
+    const balance = qtyOrdered - qtyDelivered - qtyCancelled;
+    
+    // CORRECTED: Complete only when Qty Ordered = Qty Delivered
+    const isComplete = qtyDelivered === qtyOrdered && qtyOrdered > 0;
+    const status = isComplete ? 'Complete' : order.Status || 'Pending';
+    
+    const supplier = order.Supplier || 'Unknown';
+    
+    let courier = 'Not Assigned';
+    const supplierLower = supplier.toLowerCase().trim();
+    
+    for (const [key, value] of Object.entries(supplierCouriers)) {
+      if (key.toLowerCase().trim() === supplierLower) {
+        courier = value;
+        break;
+      }
+    }
+    
+    if (courier === 'Not Assigned') {
+      for (const [key, value] of Object.entries(supplierCouriers)) {
+        if (key.toLowerCase().includes(supplierLower) || supplierLower.includes(key.toLowerCase())) {
+          courier = value;
+          break;
+        }
+      }
+    }
+    
+    const statusClass = getStatusClass(status);
+    const statusIcon = getStatusIcon(status);
+    
+    const amount = (qtyOrdered * (Number(order['Unit Price']) || 0)).toFixed(2);
+    const currency = order.Currency || 'PHP';
+
+    const timeline = generateTimeline(order, isComplete);
+
+    resultContainer.innerHTML = `
+      <div class="result-section">
+        <div class="result-header">
+          <div class="result-header-info">
+            <h2>All Shipment Updates for Order #${order.Number}</h2>
+            <p>Order Date: ${order['Order Date'] || 'N/A'}</p>
+          </div>
+          <span class="status-badge ${statusClass}">
+            ${statusIcon} ${status}
+          </span>
+        </div>
+
+        <div class="result-body">
+          ${courier !== 'Not Assigned' ? `
+            <div class="courier-banner">
+              <h5>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                Shipping Courier
+              </h5>
+              <p>${courier}</p>
+            </div>
+          ` : ''}
+
+          <h3 class="info-section-title">Shipment Details</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Supplier</label>
+              <div class="value">${supplier}</div>
+            </div>
+            <div class="info-item">
+              <label>Product Description</label>
+              <div class="value">${order.Description || order.Product || 'N/A'}</div>
+            </div>
+            <div class="info-item">
+              <label>Quantity Ordered</label>
+              <div class="value">${qtyOrdered} ${order.UOM || 'PCS'}</div>
+            </div>
+            <div class="info-item">
+              <label>Quantity Delivered</label>
+              <div class="value">${qtyDelivered} ${order.UOM || 'PCS'}</div>
+            </div>
+            <div class="info-item">
+              <label>Balance</label>
+              <div class="value">${balance} ${order.UOM || 'PCS'}</div>
+            </div>
+            <div class="info-item">
+              <label>Total Amount</label>
+              <div class="value">${currency} ${amount}</div>
+            </div>
+            <div class="info-item">
+              <label>Deliver To</label>
+              <div class="value">${order['Deliver To Person'] || 'N/A'}</div>
+            </div>
+            <div class="info-item">
+              <label>Buyer</label>
+              <div class="value">${order.Buyer || 'N/A'}</div>
+            </div>
+          </div>
+
+          ${order.Remarks ? `
+            <div class="info-item" style="margin-bottom: 2.5rem;">
+              <label>Remarks</label>
+              <div class="value" style="font-weight: 400; line-height: 1.6;">
+                ${order.Remarks}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="timeline-section">
+            <h3 class="info-section-title">Shipment Timeline</h3>
+            <div class="timeline">
+              ${timeline}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+function generateTimeline(order, isComplete) {
+    const orderDate = order['Order Date'];
+    const tentativeDate = order['Tentative Delivery Date'];
+    const deliveryDate = order['Delivery Date']; // This is when supplier forwarded to courier
+    const reason = order.Reason || order['Reason for Delay'] || '';
+    
+    // Parse dates for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let tentativeDateObj = null;
+    let deliveryDateObj = null;
+    
+    if (tentativeDate) {
+      tentativeDateObj = new Date(tentativeDate);
+      tentativeDateObj.setHours(0, 0, 0, 0);
+    }
+    
+    if (deliveryDate) {
+      deliveryDateObj = new Date(deliveryDate);
+      deliveryDateObj.setHours(0, 0, 0, 0);
+    }
+    
+    // Check for delays
+    const isDelayedFromExpected = tentativeDateObj && today > tentativeDateObj && !isComplete;
+    const isDelayedFromDelivery = tentativeDateObj && deliveryDateObj && deliveryDateObj > tentativeDateObj;
+    
+    let timeline = '';
+
+    // Step 1: Order Placed (Always completed)
+    timeline += `
+      <div class="timeline-item">
+        <div class="timeline-icon completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="timeline-content">
+          <h4>Order Placed</h4>
+          <p>${orderDate || 'N/A'}</p>
+        </div>
+      </div>
+    `;
+
+    // Step 2: Order Processing (Completed if status is not Pending)
+    if (order.Status !== 'Pending') {
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon completed">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>Order Processing</h4>
+            <p>Supplier is preparing your order</p>
+          </div>
+        </div>
+      `;
+    } else {
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3">
+              <circle cx="12" cy="12" r="8"></circle>
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>Order Processing</h4>
+            <p>Waiting for supplier to process order</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Step 3: Shipped from Supplier (Completed if deliveryDate exists)
+    if (deliveryDate) {
+      let shipmentNote = `Forwarded to courier on ${deliveryDate}`;
+      
+      // Check if delivery was delayed from expected date
+      if (isDelayedFromDelivery) {
+        shipmentNote += `<br><span style="color: #EF4444; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          Delayed from expected date (${tentativeDate})
+        </span>`;
+        
+        if (reason) {
+          shipmentNote += `<br><span style="color: #991B1B; font-style: italic; margin-top: 0.25rem; display: block;">Reason: ${reason}</span>`;
+        } else {
+          shipmentNote += `<br><span style="color: #991B1B; font-style: italic; margin-top: 0.25rem; display: block;">⚠ Please contact the Purchasing Department and reach out to <strong>${order.Buyer || 'the Buyer'}</strong> for more details.</span>`;
+        }
+      }
+      
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon completed">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>Shipped from Supplier</h4>
+            <p>${shipmentNote}</p>
+          </div>
+        </div>
+      `;
+    } else {
+      const expectedText = tentativeDate ? `Expected: ${tentativeDate}` : 'Awaiting shipment from supplier';
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3">
+              <circle cx="12" cy="12" r="8"></circle>
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>Awaiting Shipment</h4>
+            <p>${expectedText}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Step 4: In Transit (Completed if deliveryDate exists)
+    if (deliveryDate) {
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon ${isComplete ? 'completed' : ''}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${isComplete ? 'white' : 'var(--primary)'}" stroke-width="3">
+              ${isComplete ? '<polyline points="20 6 9 17 4 12"></polyline>' : '<circle cx="12" cy="12" r="8"></circle>'}
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>In Transit</h4>
+            <p>${isComplete ? 'Package delivered' : 'Currently in transit to company'}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Step 5: Delivered to Company (Only completed when Qty Ordered = Qty Delivered)
+    if (isComplete) {
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon completed">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>Delivered to Company</h4>
+            <p>Order completed - All items received</p>
+          </div>
+        </div>
+      `;
+    } else if (deliveryDate) {
+      const qtyDelivered = Number(order['Quantity Delivered']) || 0;
+      const qtyOrdered = Number(order['Quantity Ordered']) || 0;
+      
+      let deliveryNote = qtyDelivered > 0 
+        ? `Partially delivered: ${qtyDelivered}/${qtyOrdered} items received` 
+        : 'Pending receipt at company';
+      
+      // Check if expected delivery date has passed
+      if (isDelayedFromExpected) {
+        deliveryNote += `<br><span style="color: #EF4444; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          Expected delivery date has passed (${tentativeDate})
+        </span>`;
+        deliveryNote += `<br><span style="color: #991B1B; font-style: italic; margin-top: 0.25rem; display: block;">⚠ Please contact the Purchasing Department and reach out to <strong>${order.Buyer || 'the Buyer'}</strong> for more details.</span>`;
+      }
+      
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3">
+              <circle cx="12" cy="12" r="8"></circle>
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>Awaiting Delivery to Company</h4>
+            <p>${deliveryNote}</p>
+          </div>
+        </div>
+      `;
+    } else {
+      let awaitingNote = 'Not yet delivered';
+      
+      // Check if expected delivery date has passed
+      if (isDelayedFromExpected) {
+        awaitingNote = `Expected: ${tentativeDate}<br><span style="color: #EF4444; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          Expected delivery date has passed
+        </span>`;
+        awaitingNote += `<br><span style="color: #991B1B; font-style: italic; margin-top: 0.25rem; display: block;">⚠ Please contact the Purchasing Department and reach out to <strong>${order.Buyer || 'the Buyer'}</strong> for more details.</span>`;
+      }
+      
+      timeline += `
+        <div class="timeline-item">
+          <div class="timeline-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3">
+              <circle cx="12" cy="12" r="8"></circle>
+            </svg>
+          </div>
+          <div class="timeline-content">
+            <h4>Awaiting Delivery to Company</h4>
+            <p>${awaitingNote}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    return timeline;
+  }
+
+  function getStatusClass(status) {
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'complete' || statusLower === 'delivered') return 'status-complete';
+    if (statusLower === 'partially delivered' || statusLower === 'partial') return 'status-partial';
+    if (statusLower === 'delayed') return 'status-delayed';
+    return 'status-pending';
+  }
+
+  function getStatusIcon(status) {
+    const statusLower = status.toLowerCase();
+    if (statusLower === 'complete' || statusLower === 'delivered') return '✓';
+    if (statusLower === 'partially delivered' || statusLower === 'partial') return '⟳';
+    if (statusLower === 'delayed') return '⚠';
+    return '⏱';
+  }
+</script>
+
+</body>
+</html>
